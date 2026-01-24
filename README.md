@@ -2,10 +2,6 @@
 
 A beautiful, modern, and fully customizable wedding invitation web application built with React and TypeScript. This single-page application provides an elegant way to share your wedding details, manage RSVPs, collect guest wishes, and showcase your gift registry.
 
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 ## ✨ Features
 
 - **Welcome Screen**: Elegant entry point with smooth transition to main content
@@ -111,10 +107,10 @@ All wedding-specific data is centralized in `constants.tsx` for easy customizati
 
 Edit `constants.tsx` to update:
 
-- **Couple Information**: Names, short names, emojis, parent names, contact details
+- **Couple Information**: Names, short names, parent names, contact details
 - **Event Details**: Date, time, venue, location links (Google Maps, Waze)
 - **Timeline/Schedule**: Wedding day events with times and descriptions
-- **Gift Registry**: Bank details, gift items with images and prices
+- **Gift Registry**: Bank details, gift items with images
 - **Theme**: Colors and fonts
 - **Music**: Background music URL and volume
 

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { storage } from '../services/storage';
-import { RSVPData } from '../types';
+import { RSVPData, Wish } from '../types';
 import { RSVP_DEADLINE } from '../constants';
 
 const RSVPSection: React.FC = () => {
@@ -40,6 +40,18 @@ const RSVPSection: React.FC = () => {
       timestamp: Date.now()
     };
     storage.saveRSVP(newRSVP);
+
+    // Always add Ucapan Ringkas as a Wish in the Ucapan section
+    const wishMessage = formData.message?.trim() || '—';
+    const newWish: Wish = {
+      id: `wish-rsvp-${Date.now()}`,
+      name: formData.name,
+      message: wishMessage,
+      timestamp: Date.now()
+    };
+    storage.saveWish(newWish);
+    window.dispatchEvent(new CustomEvent('wishes-updated'));
+
     setSubmitted(true);
     refreshStats();
   };

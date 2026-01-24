@@ -9,7 +9,10 @@ const GuestbookSection: React.FC = () => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    setWishes(storage.getWishes());
+    const load = () => setWishes(storage.getWishes());
+    load();
+    window.addEventListener('wishes-updated', load);
+    return () => window.removeEventListener('wishes-updated', load);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {

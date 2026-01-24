@@ -23,9 +23,6 @@ const CoupleSection: React.FC = () => {
                 className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" 
               />
             </div>
-            <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-primary rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-              <span className="text-white text-3xl">{groom.emoji}</span>
-            </div>
           </div>
           
           <div className="pt-4">
@@ -47,9 +44,6 @@ const CoupleSection: React.FC = () => {
                 alt={bride.fullName} 
                 className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" 
               />
-            </div>
-            <div className="absolute -bottom-6 -left-6 w-16 h-16 bg-secondary rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-              <span className="text-white text-3xl">{bride.emoji}</span>
             </div>
           </div>
 
