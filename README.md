@@ -66,22 +66,13 @@ e-wedcard/
    ```bash
    npm install
    ```
-
-3. **Configure environment variables:**
    
-   Create or update `.env` file in the root directory:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
-   
-   > **Note**: The Gemini API key is configured but may not be actively used in the current version. You can set a placeholder value if not needed.
-
-4. **Run the development server:**
+3. **Run the development server:**
    ```bash
    npm run dev
    ```
 
-5. **Open your browser:**
+4. **Open your browser:**
    
    The app will be available at `http://localhost:3000`
 
