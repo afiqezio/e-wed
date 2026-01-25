@@ -1,13 +1,17 @@
 
 import React from 'react';
-import { WEDDING_CONFIG } from '../constants';
+import { WeddingConfig } from '../types';
 
-const TimelineSection: React.FC = () => {
-  const { schedule } = WEDDING_CONFIG;
+interface TimelineSectionProps {
+  config: WeddingConfig;
+}
+
+const TimelineSection: React.FC<TimelineSectionProps> = ({ config }) => {
+  const { schedule } = config;
   
   return (
     <section id="timeline" className="py-24 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'color-mix(in srgb, var(--color-primary), transparent 97%)' }}>
-      <div className="text-center mb-16">
+      <div className="text-center mb-16 reveal-on-scroll slide-up">
         <h2 className="text-4xl md:text-5xl font-display text-[#333333] mb-4">Aturcara Majlis</h2>
         <p className="text-secondary font-serif italic text-lg">Momen-momen indah yang akan diraikan</p>
         <div className="w-24 h-px bg-primary mx-auto mt-4 opacity-50"></div>
@@ -18,9 +22,13 @@ const TimelineSection: React.FC = () => {
 
         <div className="space-y-12">
           {schedule.map((item, index) => (
-            <div key={index} className={`flex items-center w-full ${index % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div 
+              key={index} 
+              className={`flex items-center w-full reveal-on-scroll ${index % 2 === 0 ? 'flex-row-reverse slide-left' : 'flex-row slide-right'}`}
+              style={{ transitionDelay: `${index * 0.1}s` }}
+            >
               <div className="w-1/2 px-4 md:px-8">
-                <div className={`p-6 bg-white shadow-xl rounded-2xl transition-transform hover:scale-105 duration-300 border-t-4 border-primary ${index % 2 === 0 ? 'text-left' : 'text-right'}`}>
+                <div className={`p-6 bg-white shadow-xl rounded-2xl transition-all hover:-translate-y-2 duration-300 border-t-4 border-primary ${index % 2 === 0 ? 'text-left' : 'text-right'}`}>
                   <span className="text-primary font-bold text-sm tracking-widest">{item.time}</span>
                   <h4 className="text-xl font-display mt-1 mb-2 text-[#333333]">{item.title}</h4>
                   <p className="text-sm text-[#666] leading-relaxed">{item.description}</p>

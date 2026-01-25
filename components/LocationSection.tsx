@@ -1,10 +1,15 @@
 
 import React from 'react';
-import { WEDDING_CONFIG } from '../constants';
+import { WeddingConfig } from '../types';
 
-const LocationSection: React.FC = () => {
-  const { venueName, timeRange, location } = WEDDING_CONFIG.event;
-  const { groom, bride } = WEDDING_CONFIG.couple;
+interface LocationSectionProps {
+  config: WeddingConfig;
+}
+
+const LocationSection: React.FC<LocationSectionProps> = ({ config }) => {
+  // Use config from props instead of the missing WEDDING_CONFIG constant
+  const { venueName, timeRange, location } = config.event;
+  const { contacts } = config;
 
   return (
     <section id="location" className="py-24 text-center">
@@ -46,19 +51,26 @@ const LocationSection: React.FC = () => {
         </a>
       </div>
 
-      <div className="mt-24 max-w-2xl mx-auto px-4">
+      <div className="mt-24 max-w-4xl mx-auto px-4">
         <h3 className="text-2xl font-display mb-8 text-[#333]">Hubungi Kami</h3>
-        <div className="grid grid-cols-2 gap-8">
-          <a href={groom.contact.link} className="bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-primary/5 group">
-            <div className="text-[10px] font-bold text-primary tracking-[0.2em] mb-1 group-hover:scale-110 transition-transform">PIHAK LELAKI</div>
-            <div className="text-lg font-medium">{groom.shortName}</div>
-            <div className="text-sm opacity-60 mt-1">{groom.contact.phone}</div>
-          </a>
-          <a href={bride.contact.link} className="bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-secondary/5 group">
-            <div className="text-[10px] font-bold text-secondary tracking-[0.2em] mb-1 group-hover:scale-110 transition-transform">PIHAK PEREMPUAN</div>
-            <div className="text-lg font-medium">{bride.shortName}</div>
-            <div className="text-sm opacity-60 mt-1">{bride.contact.phone}</div>
-          </a>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          {contacts && contacts.length > 0 ? (
+            contacts.map((contact, idx) => (
+              <a 
+                key={idx} 
+                href={contact.link} 
+                className={`bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl transition-all border group ${contact.side === 'groom' ? 'border-primary/5' : 'border-secondary/5'}`}
+              >
+                <div className={`text-[10px] font-bold tracking-[0.2em] mb-1 group-hover:scale-110 transition-transform ${contact.side === 'groom' ? 'text-primary' : 'text-secondary'}`}>
+                  {contact.side === 'groom' ? 'PIHAK LELAKI' : 'PIHAK PEREMPUAN'} ({contact.label})
+                </div>
+                <div className="text-lg font-medium">{contact.name}</div>
+                <div className="text-sm opacity-60 mt-1">{contact.phone}</div>
+              </a>
+            ))
+          ) : (
+            <p className="col-span-2 text-muted italic">Sila hubungi pihak keluarga untuk maklumat lanjut.</p>
+          )}
         </div>
       </div>
     </section>

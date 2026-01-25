@@ -1,15 +1,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { WEDDING_CONFIG } from '../constants';
+import { WeddingConfig } from '../types';
 
 interface MusicPlayerProps {
+  config: WeddingConfig;
   autoStart?: boolean;
 }
 
-const MusicPlayer: React.FC<MusicPlayerProps> = ({ autoStart }) => {
+const MusicPlayer: React.FC<MusicPlayerProps> = ({ config, autoStart }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { url, volume } = WEDDING_CONFIG.music;
+  // Use config from props instead of the missing WEDDING_CONFIG constant
+  const { url, volume } = config.music;
 
   useEffect(() => {
     if (autoStart && audioRef.current) {

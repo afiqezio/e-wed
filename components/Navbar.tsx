@@ -1,11 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { WEDDING_CONFIG } from '../constants';
+import { WeddingConfig } from '../types';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  config: WeddingConfig;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ config }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { groom, bride } = WEDDING_CONFIG.couple;
+  // Use config from props instead of the missing WEDDING_CONFIG constant
+  const { groom, bride } = config.couple;
 
   useEffect(() => {
     const handleScroll = () => {

@@ -1,14 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { storage } from '../services/storage';
-import { Gift } from '../types';
-import { WEDDING_CONFIG } from '../constants';
+import { WeddingConfig, Gift } from '../types';
 
-const RegistrySection: React.FC = () => {
+interface RegistrySectionProps {
+  config: WeddingConfig;
+}
+
+const RegistrySection: React.FC<RegistrySectionProps> = ({ config }) => {
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { bankName, accountNumber, accountHolder } = WEDDING_CONFIG.registry;
+  // Use config from props instead of the missing WEDDING_CONFIG constant
+  const { bankName, accountNumber, accountHolder } = config.registry;
 
   useEffect(() => {
     // Real-time listener for gifts

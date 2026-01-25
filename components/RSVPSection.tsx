@@ -1,10 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { storage } from '../services/storage';
-import { RSVPData, Wish } from '../types';
-import { RSVP_DEADLINE } from '../constants';
+import { WeddingConfig, RSVPData, Wish } from '../types';
 
-const RSVPSection: React.FC = () => {
+interface RSVPSectionProps {
+  config: WeddingConfig;
+}
+
+const RSVPSection: React.FC<RSVPSectionProps> = ({ config }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,7 +19,10 @@ const RSVPSection: React.FC = () => {
   const [stats, setStats] = useState({ attending: 0, notAttending: 0, totalGuests: 0 });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isDeadlinePassed = new Date() > RSVP_DEADLINE;
+
+  // Derive deadline from config
+  const rsvpDeadline = new Date(config.event.rsvpDeadline);
+  const isDeadlinePassed = new Date() > rsvpDeadline;
 
   useEffect(() => {
     fetchStats();
@@ -73,7 +79,7 @@ const RSVPSection: React.FC = () => {
     <section id="rsvp" className="py-24 bg-[#FAF7F5]" style={{ backgroundColor: 'color-mix(in srgb, var(--color-bg), black 2%)' }}>
       <div className="text-center mb-16 px-4">
         <h2 className="text-4xl md:text-5xl font-display text-[#2D2D2D] mb-4">Kehadiran</h2>
-        <p className="text-primary font-serif italic text-lg">Mohon maklumbalas sebelum {RSVP_DEADLINE.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+        <p className="text-primary font-serif italic text-lg">Mohon maklumbalas sebelum {rsvpDeadline.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
         <div className="w-24 h-px bg-primary mx-auto mt-6 opacity-20"></div>
       </div>
 

@@ -1,26 +1,31 @@
 
 import React from 'react';
-import { WEDDING_CONFIG } from '../constants';
+import { WeddingConfig } from '../types';
 
-const CoupleSection: React.FC = () => {
-  const { groom, bride } = WEDDING_CONFIG.couple;
+interface CoupleSectionProps {
+  config: WeddingConfig;
+}
+
+const CoupleSection: React.FC<CoupleSectionProps> = ({ config }) => {
+  const { groom, bride } = config.couple;
 
   return (
     <section id="couple" className="py-24 relative overflow-hidden">
-      <div className="text-center mb-20">
+      <div className="text-center mb-20 reveal-on-scroll slide-up">
         <h2 className="text-4xl md:text-5xl font-display text-[#2D2D2D] mb-4">Mempelai</h2>
         <div className="w-24 h-px bg-primary mx-auto opacity-30"></div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-20 items-center max-w-5xl mx-auto">
         {/* Groom */}
-        <div className="text-center space-y-8 animate-slide-up">
-          <div className="relative inline-block">
-            <div className="w-64 h-80 rounded-t-full border-[10px] border-white shadow-2xl overflow-hidden transition-all duration-700 hover:shadow-primary/10">
+        <div className="text-center space-y-8 reveal-on-scroll slide-left">
+          <div className="relative inline-block group">
+            <div className="absolute inset-0 bg-primary/20 rounded-t-full scale-105 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative w-64 h-80 rounded-t-full border-[10px] border-white shadow-2xl overflow-hidden transition-all duration-700 hover:shadow-primary/20">
               <img 
-                src="https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&q=80&w=600" 
+                src={groom.imageUrl} 
                 alt={groom.fullName} 
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" 
+                className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000" 
               />
             </div>
           </div>
@@ -36,13 +41,14 @@ const CoupleSection: React.FC = () => {
         </div>
 
         {/* Bride */}
-        <div className="text-center space-y-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <div className="relative inline-block">
-            <div className="w-64 h-80 rounded-t-full border-[10px] border-white shadow-2xl overflow-hidden transition-all duration-700 hover:shadow-secondary/10">
+        <div className="text-center space-y-8 reveal-on-scroll slide-right">
+          <div className="relative inline-block group">
+            <div className="absolute inset-0 bg-secondary/20 rounded-t-full scale-105 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative w-64 h-80 rounded-t-full border-[10px] border-white shadow-2xl overflow-hidden transition-all duration-700 hover:shadow-secondary/20">
               <img 
-                src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&q=80&w=600" 
+                src={bride.imageUrl} 
                 alt={bride.fullName} 
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" 
+                className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000" 
               />
             </div>
           </div>

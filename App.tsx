@@ -10,71 +10,96 @@ import RSVPSection from './components/RSVPSection';
 import GuestbookSection from './components/GuestbookSection';
 import RegistrySection from './components/RegistrySection';
 import MusicPlayer from './components/MusicPlayer';
-import { WEDDING_CONFIG } from './constants';
+import { storage } from './services/storage';
+import { WeddingConfig } from './types';
+import { FALLBACK_CONFIG } from './constants';
 
 const App: React.FC = () => {
+  const [config, setConfig] = useState<WeddingConfig>(FALLBACK_CONFIG as unknown as WeddingConfig);
   const [showMain, setShowMain] = useState(false);
   const [shouldPlayMusic, setShouldPlayMusic] = useState(false);
 
-  // Scalable Theme Injection
   useEffect(() => {
-    const root = document.documentElement;
-    const { colors, fonts } = WEDDING_CONFIG.theme;
-    
-    // Inject Colors
-    root.style.setProperty('--color-primary', colors.primary);
-    root.style.setProperty('--color-secondary', colors.secondary);
-    root.style.setProperty('--color-accent', colors.accent);
-    root.style.setProperty('--color-bg', colors.background);
-    root.style.setProperty('--color-text', colors.text);
-    root.style.setProperty('--color-muted', colors.muted);
-    
-    // Inject Fonts
-    root.style.setProperty('--font-display', fonts.display);
-    root.style.setProperty('--font-body', fonts.body);
-    root.style.setProperty('--font-serif', fonts.serif);
+    injectTheme(config);
+    const unsubscribe = storage.subscribeConfig((newConfig) => {
+      if (newConfig) {
+        setConfig(newConfig);
+        injectTheme(newConfig);
+      }
+    });
+    return () => unsubscribe();
   }, []);
+
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    if (!showMain) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    const elements = document.querySelectorAll('.reveal-on-scroll');
+    elements.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [showMain]);
+
+  const injectTheme = (conf: WeddingConfig) => {
+    if (conf.theme) {
+      const root = document.documentElement;
+      const { colors, fonts } = conf.theme;
+      if (colors) {
+        Object.entries(colors).forEach(([key, val]) => {
+          if (val) root.style.setProperty(`--color-${key}`, val);
+        });
+      }
+      if (fonts) {
+        Object.entries(fonts).forEach(([key, val]) => {
+          if (val) root.style.setProperty(`--font-${key}`, val);
+        });
+      }
+    }
+  };
 
   const handleEnter = () => {
     setShowMain(true);
     setShouldPlayMusic(true);
-    // Use a small timeout to allow the main content to mount before scrolling
     setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'smooth'
-      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
   };
 
   if (!showMain) {
-    return <WelcomeScreen onEnter={handleEnter} />;
+    return <WelcomeScreen config={config} onEnter={handleEnter} />;
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', fontFamily: 'var(--font-body)' }}>
-      <Navbar />
+    <div className="min-h-screen transition-opacity duration-1000 animate-fade-in" style={{ backgroundColor: 'var(--color-background)', color: 'var(--color-text)', fontFamily: 'var(--font-body)' }}>
+      <Navbar config={config} />
       <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Hero />
-        <CoupleSection />
-        <TimelineSection />
-        <LocationSection />
-        <RegistrySection />
-        <RSVPSection />
+        <Hero config={config} />
+        <CoupleSection config={config} />
+        <TimelineSection config={config} />
+        <LocationSection config={config} />
+        <RegistrySection config={config} />
+        <RSVPSection config={config} />
         <GuestbookSection />
       </main>
       
-      <footer className="py-20 text-center border-t" style={{ borderColor: 'rgba(var(--color-primary), 0.1)' }}>
+      <footer className="py-20 text-center border-t border-primary/10 reveal-on-scroll slide-up">
         <div className="text-3xl mb-4 text-primary" style={{ fontFamily: 'var(--font-display)' }}>
-          {WEDDING_CONFIG.couple.groom.shortName} & {WEDDING_CONFIG.couple.bride.shortName}
+          {config.couple.groom.shortName} & {config.couple.bride.shortName}
         </div>
         <p className="text-sm opacity-50 uppercase tracking-widest">
-          © {new Date().getFullYear()} — Made with love for your special day.
+          © {new Date().getFullYear()} — Created with love.
         </p>
       </footer>
 
-      <MusicPlayer autoStart={shouldPlayMusic} />
+      <MusicPlayer config={config} autoStart={shouldPlayMusic} />
     </div>
   );
 };

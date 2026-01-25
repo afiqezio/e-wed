@@ -1,10 +1,15 @@
 
 import React from 'react';
-import { WEDDING_CONFIG } from '../constants';
+import { WeddingConfig } from '../types';
 
-const Hero: React.FC = () => {
-  const { groom, bride } = WEDDING_CONFIG.couple;
-  const { shortDateDisplay } = WEDDING_CONFIG.event;
+interface HeroProps {
+  config: WeddingConfig;
+}
+
+const Hero: React.FC<HeroProps> = ({ config }) => {
+  // Use config from props instead of the missing WEDDING_CONFIG constant
+  const { groom, bride } = config.couple;
+  const { shortDateDisplay } = config.event;
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 overflow-hidden">
