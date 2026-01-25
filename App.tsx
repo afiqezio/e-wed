@@ -10,6 +10,7 @@ import RSVPSection from './components/RSVPSection';
 import GuestbookSection from './components/GuestbookSection';
 import RegistrySection from './components/RegistrySection';
 import MusicPlayer from './components/MusicPlayer';
+import AdminPanel from './components/AdminPanel';
 import { storage } from './services/storage';
 import { WeddingConfig } from './types';
 import { FALLBACK_CONFIG } from './constants_dummy';
@@ -18,21 +19,27 @@ const App: React.FC = () => {
   const [config, setConfig] = useState<WeddingConfig>(FALLBACK_CONFIG as unknown as WeddingConfig);
   const [showMain, setShowMain] = useState(false);
   const [shouldPlayMusic, setShouldPlayMusic] = useState(false);
+  const [currentRoute, setCurrentRoute] = useState(window.location.hash);
 
   useEffect(() => {
-    injectTheme(config);
+    const handleHashChange = () => setCurrentRoute(window.location.hash);
+    window.addEventListener('hashchange', handleHashChange);
+    
     const unsubscribe = storage.subscribeConfig((newConfig) => {
       if (newConfig) {
         setConfig(newConfig);
         injectTheme(newConfig);
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      unsubscribe();
+    };
   }, []);
 
-  // Intersection Observer for scroll animations
   useEffect(() => {
-    if (!showMain) return;
+    if (!showMain || currentRoute === '#admin') return;
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -46,7 +53,7 @@ const App: React.FC = () => {
     elements.forEach(el => observer.observe(el));
 
     return () => observer.disconnect();
-  }, [showMain]);
+  }, [showMain, currentRoute]);
 
   const injectTheme = (conf: WeddingConfig) => {
     if (conf.theme) {
@@ -72,6 +79,10 @@ const App: React.FC = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
   };
+
+  if (currentRoute === '#admin') {
+    return <AdminPanel config={config} />;
+  }
 
   if (!showMain) {
     return <WelcomeScreen config={config} onEnter={handleEnter} />;
