@@ -13,7 +13,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { db } from '../firebase';
 import { RSVPData, Wish, Gift, WeddingConfig } from '../types';
-import { FALLBACK_CONFIG, INITIAL_GIFTS } from '../constants';
+import { FALLBACK_CONFIG, INITIAL_GIFTS } from '../constants_dummy';
 
 const PATHS = {
   SETTINGS: 'settings',

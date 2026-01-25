@@ -12,7 +12,7 @@ import RegistrySection from './components/RegistrySection';
 import MusicPlayer from './components/MusicPlayer';
 import { storage } from './services/storage';
 import { WeddingConfig } from './types';
-import { FALLBACK_CONFIG } from './constants';
+import { FALLBACK_CONFIG } from './constants_dummy';
 
 const App: React.FC = () => {
   const [config, setConfig] = useState<WeddingConfig>(FALLBACK_CONFIG as unknown as WeddingConfig);
