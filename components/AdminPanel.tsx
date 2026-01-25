@@ -2,15 +2,41 @@
 import React, { useState, useEffect } from 'react';
 import { WeddingConfig, ContactPerson, EventSchedule, Gift } from '../types';
 import { storage } from '../services/storage';
+import { FALLBACK_CONFIG } from '../constants';
 
 interface AdminPanelProps {
   config: WeddingConfig;
 }
 
+const THEME_PRESETS = [
+  {
+    name: 'Classic Pink',
+    colors: { primary: '#A64B6D', secondary: '#A1B39D', accent: '#D4AF37', background: '#FCFAF7', text: '#2D2D2D', muted: '#777777' }
+  },
+  {
+    name: 'Emerald Garden',
+    colors: { primary: '#2D5A27', secondary: '#8BA888', accent: '#C5A059', background: '#F4F7F2', text: '#1A2E19', muted: '#6B7F6A' }
+  },
+  {
+    name: 'Midnight Gold',
+    colors: { primary: '#1B263B', secondary: '#415A77', accent: '#E0E1DD', background: '#0D1B2A', text: '#FFFFFF', muted: '#778DA9' }
+  },
+  {
+    name: 'Modern Minimalist',
+    colors: { primary: '#333333', secondary: '#666666', accent: '#999999', background: '#FFFFFF', text: '#000000', muted: '#AAAAAA' }
+  }
+];
+
+const FONT_OPTIONS = {
+  display: ["'Playfair Display', serif", "'Cinzel', serif", "'Prata', serif", "'Great Vibes', cursive"],
+  body: ["'Montserrat', sans-serif", "'Open Sans', sans-serif", "'Roboto', sans-serif", "'Lato', sans-serif"],
+  serif: ["'Cormorant Garamond', serif", "'Lora', serif", "'EB Garamond', serif", "'Merriweather', serif"]
+};
+
 const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
   const [localConfig, setLocalConfig] = useState<WeddingConfig>(config);
   const [gifts, setGifts] = useState<Gift[]>([]);
-  const [activeTab, setActiveTab] = useState<'basic' | 'event' | 'schedule' | 'contacts' | 'registry'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'event' | 'schedule' | 'contacts' | 'registry' | 'theme'>('basic');
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
@@ -37,7 +63,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
 
   const updateNested = (path: string, value: any) => {
     const keys = path.split('.');
-    const newConfig = { ...localConfig };
+    const newConfig = JSON.parse(JSON.stringify(localConfig)); // Deep clone
     let current: any = newConfig;
     for (let i = 0; i < keys.length - 1; i++) {
       current = current[keys[i]];
@@ -212,10 +238,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
                   />
                 </div>
               </div>
-              <div className="mt-4 p-3 bg-white rounded-xl border border-stone-200">
-                <label className="text-[10px] font-bold text-stone-400 mb-1 block uppercase">Paparan Waktu Final</label>
-                <div className="text-sm font-mono font-bold text-primary">{localConfig.event.timeRange}</div>
-              </div>
             </div>
 
             <div className="md:col-span-2">
@@ -223,12 +245,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
               <input className="admin-input" value={localConfig.event.venueName} onChange={e => updateNested('event.venueName', e.target.value)} />
             </div>
           </div>
-        </div>
-        <div className="p-6 bg-stone-50 rounded-2xl space-y-4">
-          <h3 className="text-lg font-bold text-primary mb-4 uppercase tracking-widest">Lokasi & Navigasi</h3>
-          <input className="admin-input" placeholder="Google Maps Link" value={localConfig.event.location.googleMaps} onChange={e => updateNested('event.location.googleMaps', e.target.value)} />
-          <input className="admin-input" placeholder="Waze Link" value={localConfig.event.location.waze} onChange={e => updateNested('event.location.waze', e.target.value)} />
-          <input className="admin-input" placeholder="Maps Embed URL (Iframe src)" value={localConfig.event.location.embedUrl} onChange={e => updateNested('event.location.embedUrl', e.target.value)} />
         </div>
       </div>
     );
@@ -239,79 +255,161 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
       <div className="flex justify-between items-center mb-4">
         <div>
           <h3 className="text-lg font-bold text-primary uppercase tracking-widest">Aturcara Majlis</h3>
-          <p className="text-[10px] text-stone-400 uppercase tracking-widest">Susun atur perjalanan majlis</p>
         </div>
         <button onClick={() => addItem('schedule')} className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">+ TAMBAH ACARA</button>
       </div>
       
       <div className="space-y-4">
         {localConfig.schedule.map((item, idx) => (
-          <div key={`schedule-${idx}`} className="p-6 bg-white border border-stone-100 rounded-3xl shadow-sm hover:shadow-md transition-all flex items-start gap-4">
-            <div className="flex flex-col gap-2 pt-2">
-              <button onClick={() => moveSchedule(idx, 'up')} disabled={idx === 0} className="p-1 text-stone-300 hover:text-primary disabled:opacity-0 transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"/></svg>
-              </button>
-              <button onClick={() => moveSchedule(idx, 'down')} disabled={idx === localConfig.schedule.length - 1} className="p-1 text-stone-300 hover:text-primary disabled:opacity-0 transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>
-              </button>
-            </div>
-
+          <div key={`schedule-${idx}`} className="p-6 bg-white border border-stone-100 rounded-3xl shadow-sm flex items-start gap-4">
             <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="md:col-span-1">
-                <label className="text-[9px] font-bold text-stone-400 mb-1 block uppercase">Waktu</label>
-                <input 
-                  className="admin-input font-bold text-primary" 
-                  value={item.time} 
-                  placeholder="Contoh: 11:00 AM"
-                  onChange={e => {
-                    const newList = [...localConfig.schedule];
-                    newList[idx] = { ...newList[idx], time: e.target.value };
-                    setLocalConfig({ ...localConfig, schedule: newList });
-                  }} 
-                />
-              </div>
-              <div className="md:col-span-3 space-y-3">
-                <div>
-                  <label className="text-[9px] font-bold text-stone-400 mb-1 block uppercase">Nama Acara</label>
-                  <input 
-                    className="admin-input font-bold" 
-                    value={item.title} 
-                    placeholder="Contoh: Ketibaan Tetamu"
-                    onChange={e => {
-                      const newList = [...localConfig.schedule];
-                      newList[idx] = { ...newList[idx], title: e.target.value };
-                      setLocalConfig({ ...localConfig, schedule: newList });
-                    }} 
-                  />
-                </div>
-                <div>
-                  <label className="text-[9px] font-bold text-stone-400 mb-1 block uppercase">Penerangan (Opsional)</label>
-                  <textarea 
-                    className="admin-input text-xs h-20 resize-none" 
-                    value={item.description} 
-                    placeholder="Keterangan ringkas tentang acara ini..."
-                    onChange={e => {
-                      const newList = [...localConfig.schedule];
-                      newList[idx] = { ...newList[idx], description: e.target.value };
-                      setLocalConfig({ ...localConfig, schedule: newList });
-                    }} 
-                  />
-                </div>
-              </div>
+              <input className="admin-input" value={item.time} onChange={e => {
+                const newList = [...localConfig.schedule];
+                newList[idx] = { ...newList[idx], time: e.target.value };
+                setLocalConfig({ ...localConfig, schedule: newList });
+              }} />
+              <input className="admin-input md:col-span-3" value={item.title} onChange={e => {
+                const newList = [...localConfig.schedule];
+                newList[idx] = { ...newList[idx], title: e.target.value };
+                setLocalConfig({ ...localConfig, schedule: newList });
+              }} />
             </div>
-
-            <button onClick={() => removeItem('schedule', idx)} className="text-red-300 p-2 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all self-start">
+            <button onClick={() => removeItem('schedule', idx)} className="text-red-300 p-2 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
             </button>
           </div>
         ))}
       </div>
-      
-      {localConfig.schedule.length === 0 && (
-        <div className="text-center py-20 border-2 border-dashed border-stone-200 rounded-[2.5rem] text-stone-400 italic">
-          Belum ada aturcara. Tekan butang di atas untuk menambah.
+    </div>
+  );
+
+  const renderThemeSettings = () => (
+    <div className="space-y-12 animate-fade-in">
+      {/* Theme Presets */}
+      <div>
+        <h3 className="text-lg font-bold text-primary mb-6 uppercase tracking-widest">Pilih Tema Sedia Ada</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {THEME_PRESETS.map((preset) => (
+            <button
+              key={preset.name}
+              onClick={() => updateNested('theme.colors', preset.colors)}
+              className="p-4 bg-white border border-stone-100 rounded-2xl hover:shadow-xl transition-all group flex flex-col items-center gap-3"
+            >
+              <div className="flex gap-1">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.colors.primary }}></div>
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.colors.secondary }}></div>
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.colors.accent }}></div>
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500 group-hover:text-primary">{preset.name}</span>
+            </button>
+          ))}
         </div>
-      )}
+      </div>
+
+      {/* Custom Colors */}
+      <div className="grid md:grid-cols-2 gap-8">
+        <div className="p-6 bg-stone-50 rounded-[2rem] space-y-4">
+          <h3 className="text-sm font-bold text-stone-800 uppercase tracking-widest mb-4">Warna Custom</h3>
+          {[
+            { label: 'Primary (Main)', key: 'primary' },
+            { label: 'Secondary (Soft)', key: 'secondary' },
+            { label: 'Accent (Highlight)', key: 'accent' },
+            { label: 'Background', key: 'background' },
+            { label: 'Text', key: 'text' },
+            { label: 'Muted', key: 'muted' },
+          ].map(color => (
+            <div key={color.key} className="flex items-center gap-4">
+              <div className="flex-1">
+                <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1 block">{color.label}</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="color" 
+                    className="w-10 h-10 rounded-lg cursor-pointer border-0 p-0" 
+                    value={localConfig.theme.colors[color.key as keyof typeof localConfig.theme.colors]} 
+                    onChange={e => updateNested(`theme.colors.${color.key}`, e.target.value)} 
+                  />
+                  <input 
+                    type="text" 
+                    className="admin-input flex-1 uppercase font-mono" 
+                    value={localConfig.theme.colors[color.key as keyof typeof localConfig.theme.colors]} 
+                    onChange={e => updateNested(`theme.colors.${color.key}`, e.target.value)} 
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-6 bg-stone-50 rounded-[2rem] space-y-6">
+          <h3 className="text-sm font-bold text-stone-800 uppercase tracking-widest mb-4">Tipografi (Font)</h3>
+          <div>
+            <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1 block">Font Utama (Display)</label>
+            <select 
+              className="admin-input" 
+              value={localConfig.theme.fonts.display} 
+              onChange={e => updateNested('theme.fonts.display', e.target.value)}
+              style={{ fontFamily: localConfig.theme.fonts.display }}
+            >
+              {FONT_OPTIONS.display.map(f => <option key={f} value={f} style={{ fontFamily: f }}>{f.split(',')[0].replace(/'/g, '')}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1 block">Font Badan (Body)</label>
+            <select 
+              className="admin-input" 
+              value={localConfig.theme.fonts.body} 
+              onChange={e => updateNested('theme.fonts.body', e.target.value)}
+              style={{ fontFamily: localConfig.theme.fonts.body }}
+            >
+              {FONT_OPTIONS.body.map(f => <option key={f} value={f} style={{ fontFamily: f }}>{f.split(',')[0].replace(/'/g, '')}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1 block">Font Serif (Italic/Formal)</label>
+            <select 
+              className="admin-input" 
+              value={localConfig.theme.fonts.serif} 
+              onChange={e => updateNested('theme.fonts.serif', e.target.value)}
+              style={{ fontFamily: localConfig.theme.fonts.serif }}
+            >
+              {FONT_OPTIONS.serif.map(f => <option key={f} value={f} style={{ fontFamily: f }}>{f.split(',')[0].replace(/'/g, '')}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Music Settings */}
+      <div className="p-8 bg-stone-50 rounded-[2rem] space-y-6">
+        <h3 className="text-lg font-bold text-primary uppercase tracking-widest">Muzik & Audio Latar</h3>
+        <div className="grid md:grid-cols-3 gap-8 items-end">
+          <div className="md:col-span-2">
+            <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1 block">Pautan MP3 (URL)</label>
+            <input 
+              className="admin-input" 
+              placeholder="https://example.com/song.mp3" 
+              value={localConfig.music.url} 
+              onChange={e => updateNested('music.url', e.target.value)} 
+            />
+            <p className="text-[10px] text-stone-400 mt-2 italic">Pastikan pautan berakhir dengan .mp3 atau merupakan direct link audio.</p>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1 block">Kekuatan Bunyi (Volume: {Math.round(localConfig.music.volume * 100)}%)</label>
+            <input 
+              type="range" 
+              min="0" 
+              max="1" 
+              step="0.05" 
+              className="w-full accent-primary h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer" 
+              value={localConfig.music.volume} 
+              onChange={e => updateNested('music.volume', parseFloat(e.target.value))} 
+            />
+          </div>
+        </div>
+        <div className="mt-4 p-4 bg-white border border-stone-100 rounded-2xl flex items-center justify-between">
+          <span className="text-xs font-bold text-stone-400">TEST AUDIO</span>
+          <audio controls className="h-8 max-w-[200px]" src={localConfig.music.url}>Your browser does not support audio.</audio>
+        </div>
+      </div>
     </div>
   );
 
@@ -319,10 +417,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
     <div className="space-y-4 animate-fade-in">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-bold text-primary uppercase tracking-widest">Hubungi Kami</h3>
-        <button onClick={() => addItem('contacts')} className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">+ TAMBAH</button>
+        <button onClick={() => addItem('contacts')} className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold">+ TAMBAH</button>
       </div>
       {localConfig.contacts.map((item, idx) => (
-        <div key={`contact-${idx}`} className="p-4 bg-stone-50 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4 items-center border border-stone-100">
+        <div key={`contact-${idx}`} className="p-4 bg-stone-50 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
           <input className="admin-input" placeholder="Nama" value={item.name} onChange={e => {
             const newList = [...localConfig.contacts];
             newList[idx] = { ...newList[idx], name: e.target.value };
@@ -347,7 +445,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
               newList[idx] = { ...newList[idx], label: e.target.value };
               setLocalConfig({ ...localConfig, contacts: newList });
             }} />
-            <button onClick={() => removeItem('contacts', idx)} className="text-red-300 p-2 hover:bg-red-50 hover:text-red-500 rounded-lg">
+            <button onClick={() => removeItem('contacts', idx)} className="text-red-300 p-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
             </button>
           </div>
@@ -366,39 +464,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
           <input className="admin-input" placeholder="Nama Pemegang Akaun" value={localConfig.registry.accountHolder} onChange={e => updateNested('registry.accountHolder', e.target.value)} />
         </div>
       </div>
-      
-      <div className="space-y-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-primary uppercase tracking-widest">Senarai Hadiah</h3>
-          <button onClick={() => addItem('gifts')} className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">+ TAMBAH HADIAH</button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {gifts.map((gift, idx) => (
-            <div key={gift.id} className="p-4 bg-white rounded-[2rem] border border-stone-100 flex gap-4 items-center shadow-sm hover:shadow-md transition-all">
-              <div className="flex-1 space-y-2">
-                <input className="admin-input" value={gift.name} placeholder="Nama Hadiah" onChange={e => {
-                  const newList = [...gifts];
-                  newList[idx] = { ...newList[idx], name: e.target.value };
-                  setGifts(newList);
-                }} />
-                <input className="admin-input text-xs" placeholder="Pautan Shopee/Beli" value={gift.buyLink} onChange={e => {
-                  const newList = [...gifts];
-                  newList[idx] = { ...newList[idx], buyLink: e.target.value };
-                  setGifts(newList);
-                }} />
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className={`px-2 py-1 rounded-full text-[8px] font-bold uppercase ${gift.reserved ? 'bg-secondary text-white' : 'bg-stone-200 text-stone-500'}`}>
-                  {gift.reserved ? 'RESERVED' : 'AVAILABLE'}
-                </div>
-                <button onClick={() => removeItem('gifts', idx)} className="text-red-300 p-2 hover:bg-red-50 hover:text-red-500 rounded-lg">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 
@@ -410,6 +475,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
           {[
             { id: 'basic', label: 'Mempelai' },
             { id: 'event', label: 'Majlis' },
+            { id: 'theme', label: 'Tema & Media' },
             { id: 'schedule', label: 'Aturcara' },
             { id: 'contacts', label: 'Hubungi' },
             { id: 'registry', label: 'Hadiah' },
@@ -432,7 +498,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
           >
             {isSaving ? 'Menyimpan...' : saveStatus === 'success' ? 'Berjaya!' : 'Simpan Perubahan'}
           </button>
-          {saveStatus === 'error' && <p className="text-[10px] text-red-500 text-center font-bold">Ralat menyimpan data.</p>}
         </div>
       </aside>
 
@@ -445,6 +510,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config }) => {
         <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-stone-200">
           {activeTab === 'basic' && renderBasicInfo()}
           {activeTab === 'event' && renderEventInfo()}
+          {activeTab === 'theme' && renderThemeSettings()}
           {activeTab === 'schedule' && renderSchedule()}
           {activeTab === 'contacts' && renderContacts()}
           {activeTab === 'registry' && renderRegistry()}
