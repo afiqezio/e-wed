@@ -49,12 +49,12 @@ export const WEDDING_CONFIG = {
     accountNumber: '1642 1234 5678',
     accountHolder: 'Afiq Nurhariz bin Nurhariz',
     gifts: [
-      { id: '1', name: 'Peralatan Dapur Set', reserved: false, image: 'https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?auto=format&fit=crop&q=80&w=600', buyLink: 'https://shopee.com.my/search?keyword=kitchenware%20set' },
-      { id: '2', name: 'Tempat Tidur Queen', reserved: false, image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=600', buyLink: 'https://shopee.com.my/search?keyword=queen%20bed' },
-      { id: '3', name: 'Periuk Nasi Premium', reserved: false, image: 'https://images.unsplash.com/photo-1544233726-9f1d2b27bd8b?auto=format&fit=crop&q=80&w=600', buyLink: 'https://shopee.com.my/search?keyword=rice%20cooker%20premium' },
-      { id: '4', name: 'Set Pinggan Mangkuk', reserved: false, image: 'https://images.unsplash.com/photo-1603199506016-b9a594b593c0?auto=format&fit=crop&q=80&w=600', buyLink: 'https://shopee.com.my/search?keyword=dinnerware%20set' },
-      { id: '5', name: 'Vacuum Cleaner', reserved: false, image: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&q=80&w=600', buyLink: 'https://shopee.com.my/search?keyword=vacuum%20cleaner' },
-      { id: '6', name: 'Air Fryer', reserved: false, image: 'https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&q=80&w=600', buyLink: 'https://shopee.com.my/search?keyword=air%20fryer' },
+      { id: '1', name: 'Peralatan Dapur Set', reserved: false, buyLink: 'https://shopee.com.my/search?keyword=kitchenware%20set' },
+      { id: '2', name: 'Tempat Tidur Queen', reserved: false, buyLink: 'https://shopee.com.my/search?keyword=queen%20bed' },
+      { id: '3', name: 'Periuk Nasi Premium', reserved: false, buyLink: 'https://shopee.com.my/search?keyword=rice%20cooker%20premium' },
+      { id: '4', name: 'Set Pinggan Mangkuk', reserved: false, buyLink: 'https://shopee.com.my/search?keyword=dinnerware%20set' },
+      { id: '5', name: 'Vacuum Cleaner', reserved: false, buyLink: 'https://shopee.com.my/search?keyword=vacuum%20cleaner' },
+      { id: '6', name: 'Air Fryer', reserved: false, buyLink: 'https://shopee.com.my/search?keyword=air%20fryer' },
     ] as Gift[]
   },
   schedule: [

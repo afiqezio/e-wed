@@ -20,9 +20,7 @@ export interface Wish {
 export interface Gift {
   id: string;
   name: string;
-  price: string;
   reserved: boolean;
-  image: string;
   buyLink?: string;
 }
 

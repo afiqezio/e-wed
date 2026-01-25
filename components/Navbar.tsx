@@ -28,13 +28,6 @@ const Navbar: React.FC = () => {
 
   const closeMenu = () => setIsMenuOpen(false);
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault();
-    const el = document.getElementById(id);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    closeMenu();
-  };
-
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-8'}`}>
@@ -48,11 +41,9 @@ const Navbar: React.FC = () => {
               <li key={item.id}>
                 <a 
                   href={`#${item.id}`}
-                  onClick={(e) => handleNavClick(e, item.id)}
-                  className="inline-block text-[10px] font-bold tracking-[0.3em] py-1 uppercase relative group text-[#333] hover:text-primary transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5 cursor-pointer"
+                  className="text-[10px] font-bold tracking-[0.3em] transition-colors text-[#333] hover:text-primary uppercase"
                 >
                   {item.label}
-                  <span className="absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-300 ease-out w-0 group-hover:w-full" />
                 </a>
               </li>
             ))}
@@ -86,8 +77,8 @@ const Navbar: React.FC = () => {
             <a 
               key={item.id}
               href={`#${item.id}`}
-              onClick={(e) => handleNavClick(e, item.id)}
-              className="inline-block text-lg font-bold tracking-[0.4em] text-[#333] hover:text-primary uppercase transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5"
+              onClick={closeMenu}
+              className="text-lg font-bold tracking-[0.4em] text-[#333] hover:text-primary uppercase transition-colors"
             >
               {item.label}
             </a>

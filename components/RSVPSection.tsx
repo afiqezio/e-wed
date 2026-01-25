@@ -15,50 +15,63 @@ const RSVPSection: React.FC = () => {
   });
   const [stats, setStats] = useState({ attending: 0, notAttending: 0, totalGuests: 0 });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isDeadlinePassed = new Date() > RSVP_DEADLINE;
 
   useEffect(() => {
-    refreshStats();
+    fetchStats();
   }, []);
 
-  const refreshStats = () => {
-    const data = storage.getRSVPs();
-    const attending = data.filter(d => d.status === 'attending').length;
-    const notAttending = data.filter(d => d.status === 'not_attending').length;
-    const totalGuests = data.reduce((acc, curr) => acc + (curr.status === 'attending' ? curr.guests : 0), 0);
-    setStats({ attending, notAttending, totalGuests });
+  const fetchStats = async () => {
+    try {
+      const data = await storage.getRSVPs();
+      const attending = data.filter(d => d.status === 'attending').length;
+      const notAttending = data.filter(d => d.status === 'not_attending').length;
+      const totalGuests = data.reduce((acc, curr) => acc + (curr.status === 'attending' ? curr.guests : 0), 0);
+      setStats({ attending, notAttending, totalGuests });
+    } catch (e) {
+      console.error("Error fetching stats:", e);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isDeadlinePassed) return;
+    if (isDeadlinePassed || isSubmitting) return;
 
-    const newRSVP: RSVPData = {
-      id: Date.now().toString(),
-      ...formData,
-      status: formData.status as 'attending' | 'not_attending',
-      timestamp: Date.now()
-    };
-    storage.saveRSVP(newRSVP);
+    setIsSubmitting(true);
+    try {
+      const newRSVP: RSVPData = {
+        id: Date.now().toString(),
+        ...formData,
+        status: formData.status as 'attending' | 'not_attending',
+        timestamp: Date.now()
+      };
+      
+      await storage.saveRSVP(newRSVP);
 
-    // Always add Ucapan Ringkas as a Wish in the Ucapan section
-    const wishMessage = formData.message?.trim() || '—';
-    const newWish: Wish = {
-      id: `wish-rsvp-${Date.now()}`,
-      name: formData.name,
-      message: wishMessage,
-      timestamp: Date.now()
-    };
-    storage.saveWish(newWish);
-    window.dispatchEvent(new CustomEvent('wishes-updated'));
+      // Automatically add message to public Guestbook/Wishes
+      if (formData.message.trim()) {
+        const newWish: Wish = {
+          id: `rsvp-${Date.now()}`,
+          name: formData.name,
+          message: formData.message,
+          timestamp: Date.now()
+        };
+        await storage.saveWish(newWish);
+      }
 
-    setSubmitted(true);
-    refreshStats();
+      setSubmitted(true);
+      await fetchStats();
+    } catch (error) {
+      alert("Maaf, ralat berlaku. Sila cuba sebentar lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <section id="rsvp" className="py-24 bg-[#FAF7F5]" style={{ backgroundColor: 'color-mix(in srgb, var(--color-bg), black 2%)' }}>
-      <div className="text-center mb-16">
+      <div className="text-center mb-16 px-4">
         <h2 className="text-4xl md:text-5xl font-display text-[#2D2D2D] mb-4">Kehadiran</h2>
         <p className="text-primary font-serif italic text-lg">Mohon maklumbalas sebelum {RSVP_DEADLINE.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
         <div className="w-24 h-px bg-primary mx-auto mt-6 opacity-20"></div>
@@ -66,11 +79,11 @@ const RSVPSection: React.FC = () => {
 
       <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-12 px-4">
         <div className="space-y-6">
-          <div className="bg-white p-8 rounded-[2rem] shadow-sm text-center border-t-4 border-primary">
+          <div className="bg-white p-8 rounded-[2rem] shadow-sm text-center border-t-4 border-primary hover:shadow-lg transition-all duration-300">
             <div className="text-4xl font-display text-primary">{stats.attending}</div>
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted mt-3">Hadir</div>
           </div>
-          <div className="bg-white p-8 rounded-[2rem] shadow-sm text-center border-t-4 border-secondary">
+          <div className="bg-white p-8 rounded-[2rem] shadow-sm text-center border-t-4 border-secondary hover:shadow-lg transition-all duration-300">
             <div className="text-4xl font-display text-secondary">{stats.totalGuests}</div>
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted mt-3">Jumlah Tetamu</div>
           </div>
@@ -98,7 +111,7 @@ const RSVPSection: React.FC = () => {
                 <input 
                   type="text" 
                   required 
-                  disabled={isDeadlinePassed}
+                  disabled={isDeadlinePassed || isSubmitting}
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
                   className="w-full px-6 py-5 rounded-[1.5rem] bg-stone-50 border border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all outline-none text-sm placeholder:text-stone-300"
@@ -109,17 +122,17 @@ const RSVPSection: React.FC = () => {
               <div className="grid grid-cols-2 gap-5">
                 <button 
                   type="button"
-                  disabled={isDeadlinePassed}
+                  disabled={isDeadlinePassed || isSubmitting}
                   onClick={() => setFormData({...formData, status: 'attending'})}
-                  className={`py-5 rounded-[1.5rem] font-bold text-[10px] tracking-[0.3em] transition-all uppercase ${formData.status === 'attending' ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'bg-stone-50 text-primary hover:bg-stone-100'}`}
+                  className={`py-5 rounded-[1.5rem] font-bold text-[10px] tracking-[0.3em] transition-all uppercase hover:scale-[1.02] active:scale-95 ${formData.status === 'attending' ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'bg-stone-50 text-primary hover:bg-stone-100'}`}
                 >
                   AKAN HADIR
                 </button>
                 <button 
                   type="button"
-                  disabled={isDeadlinePassed}
+                  disabled={isDeadlinePassed || isSubmitting}
                   onClick={() => setFormData({...formData, status: 'not_attending'})}
-                  className={`py-5 rounded-[1.5rem] font-bold text-[10px] tracking-[0.3em] transition-all uppercase ${formData.status === 'not_attending' ? 'bg-[#333] text-white shadow-xl' : 'bg-stone-50 text-gray-400 hover:bg-stone-100'}`}
+                  className={`py-5 rounded-[1.5rem] font-bold text-[10px] tracking-[0.3em] transition-all uppercase hover:scale-[1.02] active:scale-95 ${formData.status === 'not_attending' ? 'bg-[#333] text-white shadow-xl' : 'bg-stone-50 text-gray-400 hover:bg-stone-100'}`}
                 >
                   TIDAK HADIR
                 </button>
@@ -129,7 +142,7 @@ const RSVPSection: React.FC = () => {
                 <div className="space-y-2 animate-fade-in">
                   <label className="text-[10px] font-bold tracking-[0.3em] opacity-60 uppercase px-2" style={{ color: 'var(--color-primary)' }}>Jumlah Tetamu</label>
                   <select 
-                    disabled={isDeadlinePassed}
+                    disabled={isDeadlinePassed || isSubmitting}
                     value={formData.guests}
                     onChange={e => setFormData({...formData, guests: parseInt(e.target.value)})}
                     className="w-full px-6 py-5 rounded-[1.5rem] bg-stone-50 border border-transparent outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 text-sm cursor-pointer"
@@ -142,20 +155,26 @@ const RSVPSection: React.FC = () => {
               <div className="space-y-2">
                 <label className="text-[10px] font-bold tracking-[0.3em] opacity-60 uppercase px-2" style={{ color: 'var(--color-primary)' }}>Ucapan Ringkas</label>
                 <textarea 
-                  disabled={isDeadlinePassed}
+                  disabled={isDeadlinePassed || isSubmitting}
                   value={formData.message}
                   onChange={e => setFormData({...formData, message: e.target.value})}
                   className="w-full px-6 py-5 rounded-[1.5rem] bg-stone-50 border border-transparent outline-none h-40 resize-none focus:bg-white focus:ring-4 focus:ring-primary/5 text-sm placeholder:text-stone-300"
                   placeholder="Tinggalkan ucapan buat pengantin..."
                 ></textarea>
+                <p className="text-[9px] text-muted tracking-wider px-2 opacity-50 italic">Ucapan anda akan turut dipaparkan di bahagian Guestbook.</p>
               </div>
 
               <button 
                 type="submit"
-                disabled={isDeadlinePassed}
-                className="w-full py-6 bg-primary text-white rounded-[1.5rem] font-bold tracking-[0.4em] text-[11px] hover:bg-primary/90 transition-all transform hover:-translate-y-1 shadow-2xl shadow-primary/20 disabled:opacity-30 active:scale-95 uppercase"
+                disabled={isDeadlinePassed || isSubmitting}
+                className="group relative w-full py-6 bg-primary text-white rounded-[1.5rem] font-bold tracking-[0.4em] text-[11px] hover:bg-primary/90 transition-all transform hover:-translate-y-1 shadow-2xl shadow-primary/20 disabled:opacity-30 active:scale-95 uppercase overflow-hidden"
               >
-                HANTAR RSVP
+                <span className={isSubmitting ? 'opacity-0' : 'opacity-100'}>HANTAR RSVP</span>
+                {isSubmitting && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  </div>
+                )}
               </button>
             </form>
           )}

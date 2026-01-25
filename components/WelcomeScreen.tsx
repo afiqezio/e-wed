@@ -35,12 +35,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
           <div className="absolute inset-0 bg-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
         </button>
       </div>
-
-      <div className="absolute top-0 right-0 w-32 h-32 md:w-64 md:h-64 opacity-5 pointer-events-none rotate-90">
-        <svg viewBox="0 0 100 100" className="w-full h-full fill-primary">
-          <path d="M0 0 L100 0 L100 100 L0 100 Z" />
-        </svg>
-      </div>
     </div>
   );
 };

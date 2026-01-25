@@ -39,9 +39,9 @@ const Hero: React.FC = () => {
           
           <a 
             href="#rsvp"
-            className="inline-block px-12 py-4 bg-white border-2 border-primary text-primary font-bold tracking-[0.2em] text-xs rounded-full transition-all hover:bg-primary hover:text-white shadow-xl hover:shadow-primary/20 active:scale-95"
+            className="group relative inline-block px-12 py-4 bg-white border-2 border-primary text-primary font-bold tracking-[0.2em] text-xs rounded-full transition-all hover:bg-primary hover:text-white shadow-xl hover:shadow-primary/30 active:scale-95 hover:-translate-y-1 overflow-hidden"
           >
-            SAY YES, I'M COMING!
+            <span className="relative z-10">SAY YES, I'M COMING!</span>
           </a>
         </div>
       </div>

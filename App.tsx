@@ -38,7 +38,14 @@ const App: React.FC = () => {
   const handleEnter = () => {
     setShowMain(true);
     setShouldPlayMusic(true);
-    window.scrollTo(0, 0);
+    // Use a small timeout to allow the main content to mount before scrolling
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   };
 
   if (!showMain) {
