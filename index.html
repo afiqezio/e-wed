@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="en" style="scroll-padding-top: 100px; scroll-behavior: smooth;">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -40,6 +40,11 @@
         --font-body: 'Montserrat', sans-serif;
         --font-serif: 'Cormorant Garamond', serif;
       }
+
+      html {
+        scroll-padding-top: 100px;
+        scroll-behavior: smooth;
+      }
       
       body {
         font-family: var(--font-body);
@@ -53,7 +58,6 @@
         background-color: transparent;
         background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5.878 18.09h19.021l-15.388 11.18 5.878 18.09-15.389-11.18-15.388 11.18 5.878-18.09L.101 18.09h19.021L30 0z' fill='currentColor' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
         color: var(--color-primary);
-        animation: floatBg 60s linear infinite;
       }
 
       @keyframes floatBg {
@@ -61,43 +65,31 @@
         to { background-position: 600px 600px; }
       }
 
-      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-      @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-      @keyframes slideInRight { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-      @keyframes slideInLeft { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-      @keyframes pulseSoft { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-      @keyframes revealScale { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-      .animate-fade-in { animation: fadeIn 1.5s ease-out forwards; }
-      .animate-slide-up { animation: slideUp 1s ease-out forwards; }
-      .animate-pulse-soft { animation: pulseSoft 3s ease-in-out infinite; }
-      
-      .reveal-on-scroll { opacity: 0; transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
-      .reveal-on-scroll.active { opacity: 1; transform: translateY(0); }
-      .reveal-on-scroll.slide-up { transform: translateY(40px); }
-      .reveal-on-scroll.slide-right { transform: translateX(50px); }
-      .reveal-on-scroll.slide-left { transform: translateX(-50px); }
+      .animate-float-slow {
+        animation: floatBg 80s linear infinite;
+      }
 
       ::-webkit-scrollbar { width: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 10px; }
 
-      .mobile-menu-enter { transform: translateY(-100%); transition: transform 0.3s ease-out; }
-      .mobile-menu-enter-active { transform: translateY(0); }
+      .reveal-on-scroll { opacity: 0; transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+      .reveal-on-scroll.active { opacity: 1; transform: translateY(0); }
+      .reveal-on-scroll.slide-up { transform: translateY(40px); }
     </style>
     <script type="importmap">
     {
       "imports": {
         "react/": "https://esm.sh/react@^19.2.3/",
         "react": "https://esm.sh/react@^19.2.3",
-        "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "framer-motion": "https://esm.sh/framer-motion@^11.11.11"
       }
     }
     </script>
-  <link rel="stylesheet" href="/index.css">
-</head>
+  </head>
   <body>
     <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>

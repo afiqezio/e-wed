@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { WeddingConfig, ContactPerson, EventSchedule, Gift } from '../types';
 import { storage } from '../services/storage';
-import { FALLBACK_CONFIG } from '../constants';
 
 interface AdminPanelProps {
   config: WeddingConfig;
