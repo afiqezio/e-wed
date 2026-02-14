@@ -33,7 +33,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ config, autoStart }) => {
   };
 
   return (
-    <div className="fixed bottom-28 md:bottom-6 right-6 z-50 transition-all duration-500">
+    <div className="fixed bottom-24 md:bottom-6 right-6 z-50 transition-all duration-500">
       <audio 
         ref={audioRef}
         loop

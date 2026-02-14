@@ -1,21 +1,21 @@
 # Elegant Wedding Invitation
 
-A beautiful, modern, and fully customizable wedding invitation web application built with React and TypeScript. This single-page application provides an elegant way to share your wedding details, manage RSVPs, collect guest wishes, and showcase your gift registry.
+A beautiful, modern, and fully customizable wedding invitation web application built with React and TypeScript. This application provides an elegant way to share your wedding details, manage RSVPs in real-time, collect guest wishes, and showcase your gift registry.
 
 ## ✨ Features
 
-- **Welcome Screen**: Elegant entry point with smooth transition to main content
-- **Hero Section**: Beautiful introduction with couple names and wedding date
-- **Couple Section**: Showcase bride and groom information with photos and contact details
-- **Timeline Section**: Display wedding day schedule with times and descriptions
-- **Location Section**: Interactive maps with Google Maps and Waze integration
-- **RSVP System**: Collect guest responses with form validation and local storage
-- **Guestbook**: Allow guests to leave wishes and messages
-- **Gift Registry**: Display and manage gift items with reservation functionality
-- **Music Player**: Background music with auto-play option
-- **Responsive Design**: Fully responsive layout for all devices
-- **Theme Customization**: Easy-to-configure color schemes and fonts
-- **Local Storage**: Persistent data storage for RSVPs, wishes, and gift reservations
+- **Welcome Screen**: Elegant entry point with smooth transition to main content.
+- **Hero Section**: Beautiful introduction with couple names and wedding date.
+- **Couple Section**: Showcase bride and groom information with photos and parent details.
+- **Timeline Section**: Display wedding day schedule with an interactive vertical/horizontal timeline.
+- **Location Section**: Interactive maps with Google Maps and Waze integration.
+- **RSVP System**: Collect guest responses with real-time statistics and deadline enforcement.
+- **Guestbook**: Allow guests to leave wishes and messages that update instantly for all users.
+- **Gift Registry**: Display and manage gift items with real-time reservation functionality.
+- **Music Player**: Background music with auto-play and manual controls.
+- **Responsive Design**: Fully responsive layout optimized for mobile (Quick-Nav) and Desktop.
+- **Admin Panel**: Hidden configuration suite (at `/#admin`) to update all wedding details, theme colors, and music without code.
+- **Real-time Sync**: Powered by Firebase Realtime Database for instant updates across all guests.
 
 ## 🛠️ Tech Stack
 
@@ -31,24 +31,24 @@ A beautiful, modern, and fully customizable wedding invitation web application b
 e-wedcard/
 ├── components/          # React components
 │   ├── WelcomeScreen.tsx    # Initial entry screen
-│   ├── Navbar.tsx           # Navigation bar
+│   ├── Navbar.tsx           # Top navigation bar (branding + desktop menu)
 │   ├── Hero.tsx             # Hero section with couple names
 │   ├── CoupleSection.tsx    # Bride and groom details
 │   ├── TimelineSection.tsx  # Wedding day schedule
 │   ├── LocationSection.tsx  # Venue and maps
-│   ├── RSVPSection.tsx      # RSVP form
-│   ├── GuestbookSection.tsx # Guest wishes
-│   ├── RegistrySection.tsx  # Gift registry
-│   └── MusicPlayer.tsx      # Background music
+│   ├── RSVPSection.tsx      # RSVP form & real-time stats
+│   ├── GuestbookSection.tsx # Guest wishes (real-time)
+│   ├── RegistrySection.tsx  # Gift registry & bank info
+│   ├── AdminPanel.tsx       # Live site editor (/#admin)
+│   └── MusicPlayer.tsx      # Background music controls
 ├── services/
-│   └── storage.ts       # LocalStorage utilities
-├── constants.tsx        # Wedding configuration (couple info, theme, etc.)
+│   └── storage.ts       # Firebase Realtime Database utilities
+├── constants.tsx        # Fallback wedding configuration
 ├── types.ts            # TypeScript type definitions
-├── App.tsx             # Main application component
+├── App.tsx             # Main application & Quick-Nav
 ├── index.tsx           # Application entry point
-├── index.html          # HTML template
-├── vite.config.ts      # Vite configuration
-└── package.json        # Dependencies and scripts
+├── firebase.ts         # Firebase configuration & initialization
+└── index.html          # HTML template & Global CSS
 ```
 
 ## 🚀 Getting Started
@@ -92,127 +92,37 @@ npm run preview
 
 ## ⚙️ Configuration
 
-All wedding-specific data is centralized in `constants.tsx` for easy customization.
+While you can use the **Admin Panel** for live updates, the initial data is set in `constants.tsx`.
 
 ### Customizing Wedding Information
 
-Edit `constants.tsx` to update:
+The system utilizes a central configuration object:
 
-- **Couple Information**: Names, short names, parent names, contact details
-- **Event Details**: Date, time, venue, location links (Google Maps, Waze)
-- **Timeline/Schedule**: Wedding day events with times and descriptions
-- **Gift Registry**: Bank details, gift items with images
-- **Theme**: Colors and fonts
-- **Music**: Background music URL and volume
-
-### Example Configuration
-
-```typescript
-export const WEDDING_CONFIG = {
-  couple: {
-    groom: {
-      name: 'YOUR_GROOM_NAME',
-      shortName: 'ShortName',
-      // ... more fields
-    },
-    bride: {
-      name: 'YOUR_BRIDE_NAME',
-      // ... more fields
-    }
-  },
-  event: {
-    date: new Date('2028-02-20T10:00:00'),
-    venueName: 'Your Venue Name',
-    // ... more fields
-  },
-  theme: {
-    colors: {
-      primary: '#A64B6D',    // Rosewood
-      secondary: '#A1B39D',  // Dusty Sage
-      // ... more colors
-    },
-    fonts: {
-      display: "'Playfair Display', serif",
-      // ... more fonts
-    }
-  }
-};
-```
-
-### Theme Customization
-
-The theme system uses CSS custom properties (CSS variables) that are dynamically injected:
-
-- **Colors**: Primary, secondary, accent, background, text, muted
-- **Fonts**: Display font (headings), body font (content), serif font (decorative)
-
-These are set in `App.tsx` and can be customized in `constants.tsx`.
+- **Couple Information**: Names, parent names, and image URLs.
+- **Event Details**: Date, venue, and navigation links.
+- **Timeline**: Array of events for the wedding day.
+- **Theme**: Primary, secondary, and accent colors defined via Hex codes.
 
 ## 🏗️ Architecture
 
 ### Component Structure
 
-- **App.tsx**: Main application component that manages:
-  - Welcome screen state
-  - Music player state
-  - Theme injection via CSS variables
-  - Component composition
+- **App.tsx**: The root orchestrator. It manages the theme injection into CSS variables and handles the transition from the Welcome Screen to the main content.
+- **Quick-Nav**: A mobile-specific floating glass bar for easy navigation.
 
-- **Components**: Each section is a self-contained component:
-  - Receives data from `constants.tsx`
-  - Manages its own local state if needed
-  - Uses the storage service for persistence
+### Data Synchronization
 
-### Data Storage
-
-The `services/storage.ts` module provides a simple interface to localStorage:
-
-- **RSVPs**: Guest responses stored as an array
-- **Wishes**: Guestbook messages stored as an array
-- **Gifts**: Gift registry with reservation status
-
-All data persists in the browser's localStorage, so it remains available across sessions.
-
-### State Management
-
-- **Local State**: React hooks (`useState`, `useEffect`) for component-level state
-- **Persistent State**: localStorage via the storage service
-- **Theme State**: CSS custom properties set on document root
+The application uses a **Publisher/Subscriber** model via Firebase:
+- The `storage` service listens for changes on the database.
+- When any user RSVPs or the Admin updates a setting, the `onValue` listener triggers a re-render for every active guest, ensuring the "Total Tetamu" count is always accurate.
 
 ## 🎨 Styling
 
-- **Tailwind CSS**: Utility-first CSS framework loaded via CDN
-- **Custom CSS**: Additional styles in `index.html` for:
-  - Scrollbar styling
-  - Animations (fadeIn, slideUp)
-  - Islamic pattern background
-  - Mobile menu transitions
-
-- **Responsive Design**: Mobile-first approach with Tailwind breakpoints
-
-## 📝 Type Definitions
-
-TypeScript types are defined in `types.ts`:
-
-- `RSVPData`: RSVP form data structure
-- `Wish`: Guestbook message structure
-- `Gift`: Gift registry item structure
-- `EventSchedule`: Timeline event structure
-
-## 🔧 Development
-
-### Available Scripts
-
-- `npm run dev`: Start development server (port 3000)
-- `npm run build`: Build for production
-- `npm run preview`: Preview production build
-
-### Development Server
-
-The Vite dev server runs on `http://localhost:3000` with:
-- Hot Module Replacement (HMR)
-- Fast refresh
-- TypeScript support
+- **Tailwind CSS**: Responsive utilities loaded via CDN.
+- **CSS Variables**: Dynamic themes. Changing a color in the Admin Panel updates the `--color-primary` variable globally.
+- **Responsive Navigation**: 
+  - **Desktop**: Traditional top-bar links.
+  - **Mobile**: Minimalist branding at top + Floating Quick-Nav at bottom.
 
 ### Code Organization
 
@@ -230,11 +140,6 @@ The Vite dev server runs on `http://localhost:3000` with:
 
 2. **Deploy the `dist/` folder** to your hosting service:
    - Vercel
-   - Netlify
-   - GitHub Pages
-   - Any static hosting service
-
-3. **Environment Variables**: Ensure `.env` variables are set in your hosting platform if needed.
 
 ## 📄 License
 
@@ -245,5 +150,3 @@ This project is private and intended for personal use.
 This is a personal wedding invitation project. For questions or suggestions, please contact the project owner.
 
 ---
-
-**Made with ❤️ for your special day**
