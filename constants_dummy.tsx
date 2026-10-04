@@ -40,6 +40,8 @@ export const FALLBACK_CONFIG = {
     day: 'Isnin',
     timeRange: '11:00 AM - 4:00 PM',
     venueName: 'NAMA LOKASI MAJLIS ANDA',
+    venueCity: 'Bandar',
+    venueState: 'Negeri',
     rsvpDeadline: '2028-12-01T23:59:59Z',
     location: {
       googleMaps: 'https://maps.google.com',
@@ -72,6 +74,46 @@ export const FALLBACK_CONFIG = {
     { time: '11:00 AM', title: 'Aturcara 1', description: 'Penerangan ringkas majlis anda.' },
     { time: '1:00 PM', title: 'Aturcara 2', description: 'Penerangan ringkas majlis anda.' },
   ],
+  // Defaults reproduce the Walimah design exactly
+  invitation: {
+    photos: {
+      hero: '/assets/hero-lilies.png',
+      couple: '/assets/story-rings.png',
+      flowers: '/assets/wedding-flowers.png',
+      closing: '/assets/closing-leaves.png'
+    },
+    text: {
+      eventLabel: 'Walimatul Urus',
+      heroMessage: 'Kami mempersilakan anda untuk meraikan penyatuan cinta dan perjalanan hidup kami',
+      coupleTitle: 'Dua Hati, Satu Ikatan',
+      coupleSubtitle: 'Dengan izin Allah, kami menyatukan dua keluarga',
+      quote: 'Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan dari jenismu sendiri, supaya kamu merasa tenteram kepadanya, dan dijadikan-Nya di antaramu rasa kasih dan sayang.',
+      quoteSource: 'Surah Ar-Rum 30:21',
+      timeNote: '(Akad & Resepsi)',
+      sessionDay: 'Akad Nikah · Pagi',
+      sessionEvening: 'Resepsi · Malam',
+      registryNote: 'Kehadiran dan doa restu anda sudah mencukupi. Sekiranya anda ingin menghulurkan tanda kasih, berikut adalah beberapa keperluan yang amat kami hargai.',
+      rsvpMessage: 'Kami amat berbesar hati sekiranya anda dapat bersama kami pada hari bahagia ini.',
+      closingQuote: 'Dan Kami ciptakan kamu berpasang-pasangan',
+      closingSource: 'Al-Quran 78:8'
+    },
+    colors: {
+      background: '#241e15',
+      deep: '#1c170f',
+      text: '#e9dfc8',
+      secondary: '#d9cdb2',
+      muted: '#a29478',
+      accent: '#d8c49c'
+    },
+    options: {
+      showWelcome: true,
+      motion: true,
+      showCountdown: true,
+      showRegistry: true,
+      showGuestbook: true,
+      language: 'ms'
+    }
+  },
   theme: {
     colors: {
       primary: '#A64B6D',
@@ -88,8 +130,9 @@ export const FALLBACK_CONFIG = {
     }
   },
   music: {
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3',
-    volume: 0.4
+    url: 'https://commons.wikimedia.org/wiki/Special:FilePath/Kevin_MacLeod_-_Canon_in_D_Major.ogg',
+    volume: 0.45,
+    credit: 'Canon in D — Kevin MacLeod (CC BY 3.0)'
   }
 };
 

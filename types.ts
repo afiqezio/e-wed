@@ -28,6 +28,8 @@ export interface EventSchedule {
   time: string;
   title: string;
   description: string;
+  /** Translations of the wording, keyed by language code (the fields above are the base language) */
+  i18n?: Record<string, { title?: string; description?: string }>;
 }
 
 export interface ContactPerson {
@@ -36,6 +38,50 @@ export interface ContactPerson {
   label: string;
   side: 'groom' | 'bride';
   link: string;
+}
+
+/** Everything about the invitation's look and wording that the admin panel can change. */
+export interface InvitationSettings {
+  photos: {
+    hero: string;     // welcome screen, hero and RSVP
+    couple: string;   // Mempelai
+    flowers: string;  // quote interlude and Aturcara
+    closing: string;  // closing section
+  };
+  text: {
+    eventLabel: string;
+    heroMessage: string;
+    coupleTitle: string;
+    coupleSubtitle: string;
+    quote: string;
+    quoteSource: string;
+    timeNote: string;
+    sessionDay: string;
+    sessionEvening: string;
+    registryNote: string;
+    rsvpMessage: string;
+    closingQuote: string;
+    closingSource: string;
+  };
+  colors: {
+    background: string;
+    deep: string;
+    text: string;
+    secondary: string;
+    muted: string;
+    accent: string;
+  };
+  options: {
+    showWelcome: boolean;
+    motion: boolean;
+    showCountdown: boolean;
+    showRegistry: boolean;
+    showGuestbook: boolean;
+    /** Language the invitation is shown in (a code from i18n/config.ts) */
+    language: string;
+  };
+  /** The editable text in other languages, keyed by language code. `text` above is the base language. */
+  i18n?: Record<string, { text?: Partial<InvitationSettings['text']> }>;
 }
 
 export interface WeddingConfig {
@@ -64,6 +110,8 @@ export interface WeddingConfig {
     day: string;
     timeRange: string;
     venueName: string;
+    venueCity: string;
+    venueState: string;
     rsvpDeadline: string;
     location: {
       googleMaps: string;
@@ -78,6 +126,8 @@ export interface WeddingConfig {
     accountHolder: string;
   };
   schedule: EventSchedule[];
+  invitation: InvitationSettings;
+  // Legacy palette: now only tints the admin panel
   theme: {
     colors: {
       primary: string;
@@ -96,5 +146,6 @@ export interface WeddingConfig {
   music: {
     url: string;
     volume: number;
+    credit?: string; // e.g. "Canon in D — Kevin MacLeod (CC BY 3.0)", shown in the footer
   };
 }

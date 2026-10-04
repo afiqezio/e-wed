@@ -31,17 +31,19 @@ export const WEDDING_CONFIG = {
     }
   },
   event: {
-    date: new Date('2028-02-20T10:00:00'),
-    fullDateDisplay: '20 February 2028',
-    shortDateDisplay: '20 • 02 • 2028',
-    day: 'Thursday',
+    date: new Date('2028-04-22T10:00:00+08:00'),
+    fullDateDisplay: '22 April 2028',
+    shortDateDisplay: '22 • 04 • 2028',
+    day: 'Sabtu',
     timeRange: '10:00 AM - 10:00 PM',
-    venueName: 'Dewan Serbaguna',
-    rsvpDeadline: new Date('2028-02-10T23:59:59'),
+    venueName: 'Rumah Abang Jamil',
+    venueCity: 'Kota Bharu',
+    venueState: 'Kelantan',
+    rsvpDeadline: new Date('2028-04-10T23:59:59+08:00'),
     location: {
-      googleMaps: 'https://share.google/gBeYPTauLpFdon0E5',
-      waze: 'https://ul.waze.com/ul?place=ChIJM5Us5N2HyzERChOfRMQCI_s&ll=3.69345430%2C101.52215270&navigate=yes',
-      embedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3982.684128522676!2d101.52055!3d3.6934543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc37d10e8e0409%3A0xc3f8e58129e9d6d0!2sDewan%20Serbaguna!5e0!3m2!1sen!2smy!4v1620000000000!5m2!1sen!2smy'
+      googleMaps: 'https://www.google.com/maps/search/?api=1&query=Rumah%20Abang%20Jamil%20Kota%20Bharu',
+      waze: 'https://waze.com/ul?q=Rumah%20Abang%20Jamil%20Kota%20Bharu&navigate=yes',
+      embedUrl: 'https://maps.google.com/maps?q=Rumah%20Abang%20Jamil%20Kota%20Bharu&output=embed'
     }
   },
   registry: {
@@ -59,7 +61,7 @@ export const WEDDING_CONFIG = {
   },
   schedule: [
     { time: '10:00 AM', title: 'Majlis Akad Nikah', description: 'Upacara penyatuan yang suci.' },
-    { time: '12:00 PM', title: 'Sesi Fotografi', description: 'Sesi merakam kenangan manis bersama keluarga.' },
+    { time: '12:00 PM', title: 'Sesi Fotografi', description: 'Merakam kenangan manis bersama keluarga.' },
     { time: '07:00 PM', title: 'Ketibaan Tetamu', description: 'Selamat datang ke dewan persandingan.' },
     { time: '07:30 PM', title: 'Ketibaan Pengantin', description: 'Perarakan masuk mempelai ke pelaminan.' },
     { time: '08:00 PM', title: 'Majlis Jamuan', description: 'Menikmati hidangan bersama para tetamu.' },
@@ -81,8 +83,9 @@ export const WEDDING_CONFIG = {
     }
   },
   music: {
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3',
-    volume: 0.4
+    url: 'https://commons.wikimedia.org/wiki/Special:FilePath/Kevin_MacLeod_-_Canon_in_D_Major.ogg',
+    volume: 0.45,
+    credit: 'Canon in D — Kevin MacLeod (CC BY 3.0)'
   }
 };
 

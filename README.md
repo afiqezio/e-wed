@@ -131,6 +131,29 @@ The application uses a **Publisher/Subscriber** model via Firebase:
 - **Constants**: Configuration data in `constants.tsx`
 - **Types**: TypeScript definitions in `types.ts`
 
+## 🌐 Languages
+
+Two things have a language, and they are independent:
+
+- **The invitation** is shown to guests in one language, chosen in the admin panel under Tampilan → Bahasa (Appearance → Language). Bahasa Melayu is the base; English is available.
+- **The admin panel** has its own BM / EN switch in the sidebar. It is the admin's personal preference and is remembered on their device.
+
+Where the wording lives:
+
+- Invitation interface text: `i18n/locales/<code>.ts`. `ms.ts` defines the shape; other locales are typed against it, so a missing key fails the type check.
+- Admin panel text: `i18n/admin/<code>.ts`, typed the same way.
+- The couple's own wording (invitation line, quotes, session headings, programme items) is stored per language in the site config. The Teks and Aturcara tabs edit the copy for the current invitation language; a field left empty falls back to that language's default.
+
+To add a language:
+
+1. Copy `i18n/locales/en.ts` to `i18n/locales/<code>.ts` and translate both exports.
+2. Register it in `i18n/config.ts` (label, short code, date locale).
+3. For the admin panel too: copy `i18n/admin/en.ts` to `i18n/admin/<code>.ts` and list it in `i18n/admin/index.tsx`.
+
+## 🛠 Adding an admin setting
+
+The admin panel is generated from `components/admin/schema.ts`. Add the field to `types.ts`, give it a default in `constants_dummy.tsx`, add its label to `i18n/admin/ms.ts` and `en.ts`, then add one line to the schema.
+
 ## 🚢 Deployment
 
 1. **Build the project:**

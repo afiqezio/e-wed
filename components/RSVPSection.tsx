@@ -2,10 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { storage } from '../services/storage';
 import { WeddingConfig, RSVPData, Wish } from '../types';
+import { Button, Dialog, Eyebrow, PhotoFrame, RadioGroup, SelectField, TextField } from './ui';
+import { Reveal, floatStyle, useNarrow } from './motion';
+import { sectionPad } from './helpers';
+import { useI18n, useInvitation } from '../i18n';
 
 interface RSVPSectionProps {
   config: WeddingConfig;
 }
+
+const GUEST_COUNTS = [1, 2, 3, 4, 5];
+
+const STAT_VALUE: React.CSSProperties = { fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 'var(--serif-h2)', color: 'var(--text-primary)', lineHeight: 1 };
 
 const RSVPSection: React.FC<RSVPSectionProps> = ({ config }) => {
   const [formData, setFormData] = useState({
@@ -17,9 +25,20 @@ const RSVPSection: React.FC<RSVPSectionProps> = ({ config }) => {
     message: ''
   });
   const [stats, setStats] = useState({ attending: 0, notAttending: 0, totalGuests: 0 });
-  const [submitted, setSubmitted] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [reply, setReply] = useState<{ name: string; status: string } | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { t, formatDate } = useI18n();
+  const { photos, text } = useInvitation(config);
+  const statusOptions = [
+    { value: 'attending', label: t.rsvp.attending },
+    { value: 'not_attending', label: t.rsvp.notAttending }
+  ];
+  const guestOptions = GUEST_COUNTS.map(n => ({ value: String(n), label: t.rsvp.guestOption(n) }));
+  const narrow = useNarrow();
   const rsvpDeadline = new Date(config.event.rsvpDeadline);
   const isDeadlinePassed = new Date() > rsvpDeadline;
 
@@ -41,140 +60,130 @@ const RSVPSection: React.FC<RSVPSectionProps> = ({ config }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isDeadlinePassed || isSubmitting) return;
+    const name = formData.name.trim();
+    if (!name) {
+      setNameError(t.rsvp.nameRequired);
+      return;
+    }
 
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
       const newRSVP: RSVPData = {
         id: Date.now().toString(),
         ...formData,
+        name,
         status: formData.status as 'attending' | 'not_attending',
         timestamp: Date.now()
       };
-      
+
       await storage.saveRSVP(newRSVP);
 
       if (formData.message.trim()) {
         const newWish: Wish = {
           id: `rsvp-${Date.now()}`,
-          name: formData.name,
-          message: formData.message,
+          name,
+          message: formData.message.trim(),
           timestamp: Date.now()
         };
         await storage.saveWish(newWish);
       }
 
-      setSubmitted(true);
+      setReply({ name, status: formData.status });
+      setDialogOpen(false);
       await fetchStats();
     } catch (error) {
-      alert("Maaf, ralat berlaku.");
+      setSubmitError(t.rsvp.failed);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const message = reply
+    ? reply.status === 'attending'
+      ? t.rsvp.thanksAttending(reply.name)
+      : t.rsvp.thanksDeclined(reply.name)
+    : isDeadlinePassed
+      ? t.rsvp.closed
+      : text.rsvpMessage;
+
   return (
-    <section id="rsvp" className="py-16 md:py-24" style={{ backgroundColor: 'var(--color-bg)' }}>
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-5xl font-display text-[#2D2D2D] mb-4">Kehadiran</h2>
-          <p className="text-primary font-serif italic text-base md:text-lg">Mohon maklumbalas sebelum {rsvpDeadline.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-        </div>
-
-        <div className="max-w-2xl mx-auto">
-          {submitted ? (
-            <div className="bg-white p-10 md:p-16 rounded-[2rem] shadow-xl text-center animate-fade-in">
-              <div className="w-16 h-16 bg-secondary/10 text-secondary rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
-              </div>
-              <h3 className="text-2xl font-display mb-2">Terima Kasih!</h3>
-              <p className="text-sm text-[#666] font-light">Maklumbalas anda telah direkodkan.</p>
-            </div>
-          ) : (
-            <div className="bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden">
-              {/* Compact Stats Header - Replaces the big cards */}
-              <div className="bg-stone-50/50 border-b border-stone-100 flex divide-x divide-stone-100">
-                <div className="flex-1 p-5 text-center">
-                  <span className="block text-2xl font-display text-primary leading-none">{stats.attending}</span>
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-stone-400 mt-1 block">Kehadiran</span>
-                </div>
-                <div className="flex-1 p-5 text-center">
-                  <span className="block text-2xl font-display text-secondary leading-none">{stats.totalGuests}</span>
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-stone-400 mt-1 block">Jumlah Tetamu</span>
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 md:p-12 space-y-6">
-                {isDeadlinePassed && (
-                  <div className="bg-red-50 text-red-700/70 p-4 rounded-xl text-[9px] tracking-widest text-center font-bold uppercase">
-                    Pendaftaran Ditutup
-                  </div>
-                )}
-                
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold tracking-widest uppercase px-2 text-primary/50">Nama Penuh</label>
-                  <input 
-                    type="text" required disabled={isDeadlinePassed || isSubmitting}
-                    value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-5 py-4 rounded-xl bg-stone-50 border border-transparent focus:bg-white focus:ring-2 focus:ring-primary/10 transition-all outline-none text-sm"
-                    placeholder="Nama anda"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button 
-                    type="button" disabled={isDeadlinePassed || isSubmitting}
-                    onClick={() => setFormData({...formData, status: 'attending'})}
-                    className={`py-4 rounded-xl font-bold text-[9px] tracking-widest uppercase transition-all ${formData.status === 'attending' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-stone-50 text-primary'}`}
-                  >
-                    HADIR
-                  </button>
-                  <button 
-                    type="button" disabled={isDeadlinePassed || isSubmitting}
-                    onClick={() => setFormData({...formData, status: 'not_attending'})}
-                    className={`py-4 rounded-xl font-bold text-[9px] tracking-widest uppercase transition-all ${formData.status === 'not_attending' ? 'bg-[#333] text-white' : 'bg-stone-50 text-stone-400'}`}
-                  >
-                    TIDAK HADIR
-                  </button>
-                </div>
-
-                {formData.status === 'attending' && (
-                  <div className="space-y-1 animate-fade-in">
-                    <label className="text-[9px] font-bold tracking-widest uppercase px-2 text-primary/50">Bilangan Tetamu</label>
-                    <select 
-                      disabled={isDeadlinePassed || isSubmitting}
-                      value={formData.guests}
-                      onChange={e => setFormData({...formData, guests: parseInt(e.target.value)})}
-                      className="w-full px-5 py-4 rounded-xl bg-stone-50 border border-transparent outline-none text-sm cursor-pointer"
-                    >
-                      {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Orang</option>)}
-                    </select>
-                  </div>
-                )}
-
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold tracking-widest uppercase px-2 text-primary/50">Ucapan (Opsional)</label>
-                  <textarea 
-                    disabled={isDeadlinePassed || isSubmitting}
-                    value={formData.message}
-                    onChange={e => setFormData({...formData, message: e.target.value})}
-                    className="w-full px-5 py-4 rounded-xl bg-stone-50 border border-transparent outline-none h-24 resize-none text-sm"
-                    placeholder="Tulis ucapan anda di sini..."
-                  ></textarea>
-                </div>
-
-                <button 
-                  type="submit"
-                  disabled={isDeadlinePassed || isSubmitting}
-                  className="w-full py-5 bg-primary text-white rounded-xl font-bold tracking-widest text-[10px] shadow-xl disabled:opacity-30 uppercase transition-all active:scale-95"
-                >
-                  {isSubmitting ? 'MENGHANTAR...' : 'SAHKAN KEHADIRAN'}
-                </button>
-              </form>
-            </div>
-          )}
-        </div>
+    <section id="rsvp" className="wl-screen-m" style={{ position: 'relative', overflow: 'hidden', padding: narrow ? sectionPad(true) : 'clamp(96px,14vw,192px) var(--page-gutter)', textAlign: 'center' }}>
+      <div data-parallax="0.2" style={{ position: 'absolute', top: '-15%', bottom: '-15%', left: 0, right: 0 }}>
+        <PhotoFrame fill src={photos.hero} grade="none" scrim="vignette" position="30% 50%" />
       </div>
+      <Reveal style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Eyebrow wide>{t.rsvp.eyebrow}</Eyebrow>
+        <h2 style={{ margin: '4px 0 20px', fontFamily: 'var(--font-script)', fontWeight: 400, fontSize: 'var(--script-lg)', lineHeight: 1.1, color: 'var(--text-primary)' }}>{t.rsvp.title}</h2>
+        <p aria-live="polite" style={{ margin: 0, maxWidth: '34ch', fontFamily: 'var(--font-serif)', fontSize: 'var(--serif-body)', lineHeight: 1.6, color: 'var(--text-primary)', textWrap: 'balance' } as React.CSSProperties}>
+          {message}
+        </p>
+        {!reply && !isDeadlinePassed && (
+          <div style={{ marginTop: 36 }}>
+            <Button size="lg" onClick={() => setDialogOpen(true)}>{t.rsvp.cta}</Button>
+          </div>
+        )}
+        <div style={{ display: 'flex', marginTop: 48 }}>
+          <div style={{ padding: '0 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, borderRight: 'var(--border-soft)' }}>
+            <span style={STAT_VALUE}>{stats.attending}</span>
+            <Eyebrow size="xs">{t.rsvp.responses}</Eyebrow>
+          </div>
+          <div style={{ padding: '0 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <span style={STAT_VALUE}>{stats.totalGuests}</span>
+            <Eyebrow size="xs">{t.rsvp.guests}</Eyebrow>
+          </div>
+        </div>
+        <div style={{ marginTop: 48 }}>
+          <Eyebrow size="xs">{t.rsvp.replyBy(formatDate(rsvpDeadline))}</Eyebrow>
+        </div>
+        <span className="wl-float" style={{ ...floatStyle(5, 5.6), display: 'inline-block', fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--ornament)', marginTop: 4 }}>⚘︎</span>
+      </Reveal>
+
+      <Dialog open={dialogOpen} onClose={() => !isSubmitting && setDialogOpen(false)} eyebrow={t.rsvp.eyebrow} title={t.rsvp.title}>
+        <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 32, textAlign: 'left' }}>
+          <TextField
+            label={t.rsvp.name}
+            placeholder={t.rsvp.namePlaceholder}
+            disabled={isSubmitting}
+            value={formData.name}
+            onChange={v => {
+              setFormData({ ...formData, name: v });
+              setNameError(null);
+            }}
+            error={nameError}
+          />
+          <RadioGroup
+            label={t.rsvp.attendance}
+            direction="column"
+            disabled={isSubmitting}
+            options={statusOptions}
+            value={formData.status}
+            onChange={v => setFormData({ ...formData, status: v })}
+          />
+          {formData.status === 'attending' && (
+            <SelectField
+              label={t.rsvp.guestCount}
+              disabled={isSubmitting}
+              options={guestOptions}
+              value={String(formData.guests)}
+              onChange={v => setFormData({ ...formData, guests: parseInt(v) })}
+            />
+          )}
+          <TextField
+            label={t.rsvp.message}
+            multiline
+            rows={2}
+            placeholder={t.rsvp.optional}
+            disabled={isSubmitting}
+            value={formData.message}
+            onChange={v => setFormData({ ...formData, message: v })}
+            error={submitError}
+          />
+          <Button type="submit" fullWidth disabled={isSubmitting}>
+            {isSubmitting ? t.rsvp.sending : t.rsvp.submit}
+          </Button>
+        </form>
+      </Dialog>
     </section>
   );
 };

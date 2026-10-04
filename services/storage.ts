@@ -52,60 +52,76 @@ const getMissingGaps = (dbVal: any, fallback: any) => {
 
 export const storage = {
   // --- SETTINGS (The whole site config) ---
-  subscribeConfig: (callback: (config: WeddingConfig) => void) => {
+  subscribeConfig: (callback: (config: WeddingConfig) => void, onError?: (error: unknown) => void) => {
     const settingsRef = ref(db, PATHS.SETTINGS);
 
-    // Remove the timeout fallback. App.tsx already starts with FALLBACK_CONFIG.
-    // We only want to trigger the callback when we have REAL data or after the DB check completes.
     return onValue(settingsRef, async (snapshot) => {
       try {
         if (!snapshot.exists()) {
+          // A brand-new database: the template is the real content until the admin edits it
           console.log("Database empty. Performing full initial seed...");
-          await set(settingsRef, FALLBACK_CONFIG);
+          set(settingsRef, FALLBACK_CONFIG).catch(err => console.error("Initial seed failed:", err));
           callback(FALLBACK_CONFIG as unknown as WeddingConfig);
-        } else {
-          const val = snapshot.val();
-          
-          // Identify gaps in the DB compared to our latest code constants
-          const gaps = getMissingGaps(val, FALLBACK_CONFIG);
-          
-          if (Object.keys(gaps).length > 0) {
-            console.log("Seeding missing fields to database:", Object.keys(gaps));
-            await update(settingsRef, gaps);
-          }
+          return;
+        }
 
-          // Deep merge logic to ensure missing subfields in DB are filled by fallback,
-          // but existing DB fields are preserved and prioritized.
-          const mergedConfig = {
-            ...FALLBACK_CONFIG,
-            ...val,
-            couple: {
-              groom: { ...FALLBACK_CONFIG.couple.groom, ...(val.couple?.groom || {}) },
-              bride: { ...FALLBACK_CONFIG.couple.bride, ...(val.couple?.bride || {}) }
-            },
-            event: { ...FALLBACK_CONFIG.event, ...(val.event || {}) },
-            theme: { 
-              colors: { ...FALLBACK_CONFIG.theme.colors, ...(val.theme?.colors || {}) },
-              fonts: { ...FALLBACK_CONFIG.theme.fonts, ...(val.theme?.fonts || {}) }
-            },
-            contacts: val.contacts && val.contacts.length > 0 ? val.contacts : FALLBACK_CONFIG.contacts,
-            schedule: val.schedule && val.schedule.length > 0 ? val.schedule : FALLBACK_CONFIG.schedule,
-          } as WeddingConfig;
+        const val = snapshot.val();
 
-          callback(mergedConfig);
+        // Deep merge logic to ensure missing subfields in DB are filled by fallback,
+        // but existing DB fields are preserved and prioritized.
+        const mergedConfig = {
+          ...FALLBACK_CONFIG,
+          ...val,
+          couple: {
+            groom: { ...FALLBACK_CONFIG.couple.groom, ...(val.couple?.groom || {}) },
+            bride: { ...FALLBACK_CONFIG.couple.bride, ...(val.couple?.bride || {}) }
+          },
+          event: {
+            ...FALLBACK_CONFIG.event,
+            ...(val.event || {}),
+            location: { ...FALLBACK_CONFIG.event.location, ...(val.event?.location || {}) }
+          },
+          registry: { ...FALLBACK_CONFIG.registry, ...(val.registry || {}) },
+          music: { ...FALLBACK_CONFIG.music, ...(val.music || {}) },
+          theme: {
+            colors: { ...FALLBACK_CONFIG.theme.colors, ...(val.theme?.colors || {}) },
+            fonts: { ...FALLBACK_CONFIG.theme.fonts, ...(val.theme?.fonts || {}) }
+          },
+          invitation: {
+            photos: { ...FALLBACK_CONFIG.invitation.photos, ...(val.invitation?.photos || {}) },
+            text: { ...FALLBACK_CONFIG.invitation.text, ...(val.invitation?.text || {}) },
+            colors: { ...FALLBACK_CONFIG.invitation.colors, ...(val.invitation?.colors || {}) },
+            options: { ...FALLBACK_CONFIG.invitation.options, ...(val.invitation?.options || {}) },
+            i18n: val.invitation?.i18n || {}
+          },
+          contacts: val.contacts && val.contacts.length > 0 ? val.contacts : FALLBACK_CONFIG.contacts,
+          schedule: val.schedule && val.schedule.length > 0 ? val.schedule : FALLBACK_CONFIG.schedule,
+        } as WeddingConfig;
+
+        callback(mergedConfig);
+
+        // Seed fields added in newer code. This runs after the page has its data,
+        // and a failed write (e.g. a read-only visitor) must not affect what they see.
+        const gaps = getMissingGaps(val, FALLBACK_CONFIG);
+        if (Object.keys(gaps).length > 0) {
+          console.log("Seeding missing fields to database:", Object.keys(gaps));
+          update(settingsRef, gaps).catch(err => console.error("Seeding failed:", err));
         }
       } catch (err) {
         console.error("Storage Error:", err);
-        // Fallback to constants only on hard error
-        callback(FALLBACK_CONFIG as unknown as WeddingConfig);
+        onError?.(err);
       }
+    }, (err) => {
+      console.error("Storage Error:", err);
+      onError?.(err);
     });
   },
 
   updateConfig: async (config: WeddingConfig) => {
     try {
       const settingsRef = ref(db, PATHS.SETTINGS);
-      return await set(settingsRef, config);
+      // The database rejects `undefined`; a JSON round-trip drops any unset optional field
+      return await set(settingsRef, JSON.parse(JSON.stringify(config)));
     } catch (e) {
       console.error("Failed to update config:", e);
       throw e;

@@ -1,0 +1,197 @@
+/* Walimah Design System — tokens + base. Fonts are loaded from Google Fonts in index.html. */
+:root{
+/* Ground — warm olive-sepia brown, approaching black at the deepest */
+--brown-975:#15110b;
+--brown-950:#1c170f;
+--brown-900:#241e15;
+--brown-850:#2d261b;
+--brown-800:#3a3123;
+--brown-700:#4a3f2e;
+--brown-600:#5e523d;
+--brown-500:#7a6c54;
+/* Ink — sepia to cream. Never pure white. */
+--sepia-400:#a29478;
+--sepia-300:#bfb093;
+--champagne-200:#d9cdb2;
+--cream-100:#e9dfc8;
+--cream-50:#f3ecdc;
+/* Accent — antique gold for ornament, emblem, rules */
+--gold-500:#a89064;
+--gold-400:#c2ab80;
+--gold-300:#d8c49c;
+/* Muted semantic */
+--clay-400:#bf8a72;
+--olive-400:#a8a882;
+
+--bg-page:var(--brown-900);
+--bg-deep:var(--brown-950);
+--bg-raised:var(--brown-850);
+--bg-overlay:color-mix(in srgb,var(--brown-975) 80%,transparent);
+--surface-input:transparent;
+--text-primary:var(--cream-100);
+--text-secondary:var(--champagne-200);
+--text-muted:var(--sepia-400);
+--text-faint:var(--brown-500);
+--text-highlight:var(--cream-50);
+--text-accent:var(--gold-300);
+--text-error:var(--clay-400);
+--text-success:var(--olive-400);
+/* Lines and scrims are mixed from the base colours so a custom palette carries through */
+--line-hairline:color-mix(in srgb,var(--cream-100) 20%,transparent);
+--line-soft:color-mix(in srgb,var(--cream-100) 38%,transparent);
+--line-strong:color-mix(in srgb,var(--cream-100) 62%,transparent);
+--line-accent:color-mix(in srgb,var(--gold-300) 55%,transparent);
+--ornament:var(--gold-300);
+--focus-ring:var(--gold-300);
+
+/* Typography */
+--font-script:"Pinyon Script","Great Vibes",cursive;
+--font-serif:"Cormorant Garamond","Cormorant",Garamond,"Times New Roman",serif;
+--font-label:"Cormorant Garamond","Cormorant",Garamond,serif;
+--font-arabic:"Aref Ruqaa","Amiri",serif;
+
+/* Script — emotion. Names + section titles only. */
+--script-hero:clamp(64px,10vw,132px);
+--script-xl:96px;
+--script-lg:72px;
+--script-md:56px;
+--script-sm:40px;
+--leading-script:1.05;
+
+/* Serif — elegance */
+--serif-display:clamp(44px,6vw,80px);
+--serif-h1:52px;
+--serif-h2:38px;
+--serif-h3:28px;
+--serif-lead:22px;
+--serif-body:18px;
+--serif-small:15px;
+--leading-display:1.08;
+--leading-heading:1.2;
+--leading-body:1.7;
+--weight-serif-light:300;
+--weight-serif:400;
+--weight-serif-medium:500;
+
+/* Label — structure. Small uppercase SERIF caps, widely spaced (no sans in this system). */
+--label-lg:14px;
+--label-md:12px;
+--label-sm:11px;
+--label-xs:10px;
+--tracking-label:.26em;
+--tracking-label-wide:.4em;
+--tracking-nav:.24em;
+--tracking-monogram:.42em;
+--weight-label:500;
+
+--arabic-emblem:44px;
+
+/* Spacing */
+--space-1:4px;
+--space-2:8px;
+--space-3:12px;
+--space-4:16px;
+--space-5:24px;
+--space-6:32px;
+--space-7:48px;
+--space-8:64px;
+--space-9:96px;
+--space-10:128px;
+--space-11:192px;
+--section-pad-y:var(--space-10);
+--section-pad-y-mobile:var(--space-9);
+--page-gutter:clamp(24px,5vw,72px);
+--measure-narrow:30ch;
+--measure:38ch;
+--measure-wide:52ch;
+--content-max:1240px;
+--nav-height:88px;
+--nav-height-mobile:64px;
+
+/* Corners: none. Printed stationery has square edges. */
+--radius-none:0;
+--radius-hair:1px;
+--border-hairline:1px solid var(--line-hairline);
+--border-soft:1px solid var(--line-soft);
+--border-strong:1px solid var(--line-strong);
+/* No elevation shadows. Only soft text protection over photos. */
+--shadow-none:none;
+--shadow-text:0 1px 24px rgba(13,9,6,.55);
+/* Photo grade — applied to every photograph */
+--photo-filter:grayscale(.9) sepia(.55) brightness(.62) contrast(.96);
+--photo-filter-soft:grayscale(.85) sepia(.5) brightness(.75) contrast(.95);
+--photo-scrim:linear-gradient(180deg,color-mix(in srgb,var(--brown-975) 45%,transparent) 0%,color-mix(in srgb,var(--brown-975) 10%,transparent) 30%,color-mix(in srgb,var(--brown-975) 20%,transparent) 65%,color-mix(in srgb,var(--brown-975) 70%,transparent) 100%);
+--photo-scrim-side:linear-gradient(90deg,var(--brown-900) 0%,color-mix(in srgb,var(--brown-900) 85%,transparent) 25%,color-mix(in srgb,var(--brown-900) 0%,transparent) 65%);
+--photo-vignette:radial-gradient(ellipse at center,color-mix(in srgb,var(--brown-975) 35%,transparent) 0%,color-mix(in srgb,var(--brown-975) 55%,transparent) 60%,color-mix(in srgb,var(--brown-975) 85%,transparent) 100%);
+/* Film grain — fractal-noise texture laid over every photograph */
+--grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .9 0 0 0 0 .85 0 0 0 0 .75 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+--grain-opacity:.22;
+/* Motion — slow fades, no bounce */
+--ease-editorial:cubic-bezier(.22,.61,.36,1);
+--ease-out-soft:cubic-bezier(.16,1,.3,1);
+--dur-fast:240ms;
+--dur-base:480ms;
+--dur-slow:900ms;
+--dur-reveal:1400ms;
+--opacity-hover:.72;
+}
+
+/* Diwani calligraphy for the basmalah: uses an installed Diwani face, or public/fonts/diwani.woff2 when supplied; otherwise falls back to --font-arabic. */
+@font-face{font-family:"Khat Diwani";src:local("Diwani Letter"),local("DiwaniLetter"),local("JH Diwani"),local("Diwani Bent"),url("/fonts/diwani.woff2") format("woff2"),url("/fonts/diwani.ttf") format("truetype");font-display:swap}
+
+html{background:var(--bg-page);color:var(--text-primary);-webkit-font-smoothing:antialiased}
+::selection{background:var(--gold-500);color:var(--brown-950)}
+
+/* Lenis smooth scroll */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+
+/* Invitation scope (the admin panel keeps its own look) */
+.wl{background:var(--bg-page);color:var(--text-primary);font-family:var(--font-serif);font-size:var(--serif-body);line-height:var(--leading-body);font-weight:var(--weight-serif);overflow-x:hidden}
+.wl *{box-sizing:border-box}
+.wl a{color:var(--text-secondary);text-decoration:none;transition:color var(--dur-base) var(--ease-editorial)}
+.wl a:hover{color:var(--text-highlight)}
+.wl ::placeholder{color:darkgray;opacity:1}
+
+/* Themed scrollbars: a gold hairline on a faint track, for the page and for inner lists */
+html:has(.wl){scrollbar-width:thin;scrollbar-color:var(--brown-600) var(--brown-950)}
+.wl-scroll{scrollbar-width:thin;scrollbar-color:var(--gold-500) transparent;padding-right:14px}
+@supports not (scrollbar-color:auto){
+  html:has(.wl)::-webkit-scrollbar{width:6px}
+  html:has(.wl)::-webkit-scrollbar-track{background:var(--brown-950)}
+  html:has(.wl)::-webkit-scrollbar-thumb{background:var(--brown-600)}
+  .wl-scroll::-webkit-scrollbar{width:3px}
+  .wl-scroll::-webkit-scrollbar-track{background:var(--line-hairline)}
+  .wl-scroll::-webkit-scrollbar-thumb{background:var(--gold-500)}
+}
+
+/* Full-screen sections. svh keeps them inside the visible area under mobile browser bars. */
+.wl-screen{min-height:100vh;min-height:100svh}
+@media (max-width:820px){
+  /* On a phone every section is laid out to sit within one screen */
+  .wl-screen-m{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center}
+}
+
+.wl-music{position:fixed;bottom:clamp(16px,3vw,24px);right:clamp(16px,3vw,24px);z-index:50;width:44px;height:44px;border-radius:0;border:var(--border-soft);background:color-mix(in srgb,var(--brown-975) 40%,transparent);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--dur-base) var(--ease-editorial)}
+.wl-music:hover{border-color:var(--line-strong);color:var(--text-highlight)}
+.wl-music:focus-visible,.wl-account:focus-visible{outline:1px solid var(--focus-ring);outline-offset:4px}
+
+.wl-account{background:none;border:0;padding:0;cursor:pointer;font-family:var(--font-serif);font-weight:300;font-size:var(--serif-h3);letter-spacing:.12em;color:var(--text-primary);transition:color var(--dur-base) var(--ease-editorial)}
+.wl-account:hover{color:var(--text-highlight)}
+
+.wl-mote{position:absolute;bottom:-10px;border-radius:50%;background:var(--gold-300);opacity:0}
+
+@media (prefers-reduced-motion: no-preference){
+  html:not([data-motion="off"]) .wl-float{animation:wl-float var(--float-dur,3.8s) ease-in-out infinite alternate}
+  html:not([data-motion="off"]) .wl-kenburns{animation:wl-kenburns 24s ease-in-out infinite alternate}
+  html:not([data-motion="off"]) .wl-mote{animation:wl-mote var(--mote-dur,20s) linear var(--mote-delay,0s) infinite}
+}
+@keyframes wl-float{to{transform:translateY(calc(var(--float-amp,8px) * -1))}}
+@keyframes wl-kenburns{to{transform:scale(1.08)}}
+@keyframes wl-mote{
+  0%{transform:translate(0,0);opacity:0}
+  20%{opacity:.55}
+  80%{opacity:.4}
+  100%{transform:translate(var(--mote-drift,0px),-110vh);opacity:0}
+}

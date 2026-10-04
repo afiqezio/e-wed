@@ -1,7 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { storage } from '../services/storage';
 import { WeddingConfig, Gift } from '../types';
+import { Button, Dialog, Eyebrow, OrnamentDivider, SectionTitle } from './ui';
+import { Reveal, useNarrow, useSmoothList } from './motion';
+import { LABEL, sectionPad } from './helpers';
+import { useI18n, useInvitation } from '../i18n';
 
 interface RegistrySectionProps {
   config: WeddingConfig;
@@ -10,9 +14,16 @@ interface RegistrySectionProps {
 const RegistrySection: React.FC<RegistrySectionProps> = ({ config }) => {
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
+  // Keeps the name on screen while the dialog fades out
+  const [dialogName, setDialogName] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  // Use config from props instead of the missing WEDDING_CONFIG constant
+  const [copied, setCopied] = useState(false);
   const { bankName, accountNumber, accountHolder } = config.registry;
+  const narrow = useNarrow();
+  const { t } = useI18n();
+  const { text } = useInvitation(config);
+  const listRef = useRef<HTMLDivElement>(null);
+  const listOverflows = useSmoothList(listRef);
 
   useEffect(() => {
     // Real-time listener for gifts
@@ -23,7 +34,12 @@ const RegistrySection: React.FC<RegistrySectionProps> = ({ config }) => {
   }, []);
 
   const handleOpenConfirm = (gift: Gift) => {
+    setDialogName(gift.name);
     setSelectedGift(gift);
+  };
+
+  const handleCancel = () => {
+    if (!isProcessing) setSelectedGift(null);
   };
 
   const handleConfirmReservation = async () => {
@@ -40,110 +56,84 @@ const RegistrySection: React.FC<RegistrySectionProps> = ({ config }) => {
     }
   };
 
+  const handleCopyAccount = () => {
+    navigator.clipboard?.writeText(accountNumber.replace(/\s+/g, '')).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+
   return (
-    <section id="registry" className="py-16 bg-white/30 relative">
-      <div className="text-center mb-12 px-4">
-        <h2 className="text-3xl md:text-4xl font-display text-[#2D2D2D] mb-3">Tanda Kasih</h2>
-        <div className="max-w-xl mx-auto space-y-3">
-          <p className="text-primary font-serif italic text-lg">Kehadiran & doa restu anda sudah mencukupi.</p>
-          <p className="text-[13px] text-[#888] leading-relaxed px-4 font-light">
-            Sekiranya anda ingin menghulurkan tanda kasih, berikut adalah beberapa keperluan yang amat kami hargai.
-          </p>
-        </div>
-        <div className="w-16 h-px bg-primary mx-auto mt-6 opacity-20"></div>
-      </div>
+    <section id="registry" className="wl-screen-m" style={{ position: 'relative', overflow: 'hidden', background: 'var(--bg-page)', padding: sectionPad(narrow) }}>
+      <div style={{ position: 'relative', width: '100%', maxWidth: 720, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: narrow ? 20 : 56, textAlign: 'center' }}>
+        <Reveal style={{ width: '100%' }}>
+          <SectionTitle
+            compact={narrow}
+            eyebrow={t.registry.eyebrow}
+            title={t.registry.title}
+            subtitle={text.registryNote}
+          />
+        </Reveal>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 max-w-5xl mx-auto">
-        {gifts.map(gift => (
-          <div key={gift.id} className="group relative bg-white rounded-[1.5rem] overflow-hidden shadow-sm transition-all duration-500 border border-[#F5F0EB] p-6 text-center hover:shadow-md hover:-translate-y-0.5">
-            <h4 className="text-base font-display mb-1 text-[#2D2D2D] tracking-tight">{gift.name}</h4>
-            
-            {gift.reserved && (
-              <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center rounded-[1.5rem] animate-fade-in">
-                <span className="px-4 py-1.5 bg-secondary text-white text-[9px] font-bold tracking-[0.2em] rounded-full shadow-sm">
-                  DIHADIAHKAN
-                </span>
-              </div>
-            )}
-            
-            {!gift.reserved ? (
-              <div className="flex flex-col gap-3">
-                <button 
-                  onClick={() => handleOpenConfirm(gift)}
-                  className="w-full py-2.5 bg-primary text-white rounded-xl text-[9px] font-bold tracking-[0.2em] hover:bg-primary/90 transition-all shadow-sm active:scale-95 uppercase hover:shadow-primary/20"
-                >
-                  HADIAHKAN INI
-                </button>
-                {gift.buyLink && (
-                  <a 
-                    href={gift.buyLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-[9px] font-bold tracking-[0.2em] text-muted hover:text-primary transition-all uppercase border-b border-transparent hover:border-primary/20 pb-0.5 hover:scale-105"
-                  >
-                    Lihat di Shopee
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div className="py-2 text-[10px] italic text-secondary font-serif">
-                Terima kasih atas ingatan ikhlas anda.
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-16 text-center px-4">
-        <div className="inline-block p-8 bg-white/80 rounded-[2rem] border border-[#F5F0EB] max-w-md w-full shadow-sm hover:shadow-md transition-shadow duration-500">
-          <p className="text-[#444] mb-6 font-serif italic text-lg opacity-80">Sumbangan Digital</p>
-          <div className="flex flex-col items-center gap-3">
-            <div className="font-bold text-primary text-[9px] tracking-[0.3em] uppercase opacity-50">{bankName}</div>
-            <div className="text-2xl font-mono tracking-[0.05em] text-[#333] font-bold group cursor-pointer">
-              <span className="hover:text-primary transition-colors">{accountNumber}</span>
-            </div>
-            <div className="text-[9px] uppercase font-bold text-[#AAA] tracking-[0.15em]">{accountHolder}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Confirmation Modal */}
-      {selectedGift && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-fade-in">
-          <div className="bg-white rounded-[2rem] max-w-sm w-full p-8 shadow-2xl border border-stone-100 animate-slide-up">
-            <div className="text-center space-y-4">
-              <h3 className="text-xl font-display text-[#2D2D2D]">Sahkan Pilihan</h3>
-              <p className="text-[13px] text-[#777] leading-relaxed">
-                Adakah anda pasti ingin menghadiahkan <span className="font-bold text-primary">{selectedGift.name}</span>?
-                <br /><br />
-                Pilihan ini akan ditanda sebagai 'Dihadiahkan' untuk mengelakkan pertindihan hadiah daripada tetamu lain.
-              </p>
-              
-              <div className="flex flex-col gap-2 mt-6">
-                <button 
-                  onClick={handleConfirmReservation}
-                  disabled={isProcessing}
-                  className="relative w-full py-3.5 bg-primary text-white rounded-xl font-bold tracking-[0.15em] text-[10px] hover:bg-primary/90 transition-all uppercase shadow-md active:scale-95 disabled:opacity-50"
-                >
-                  <span className={isProcessing ? 'opacity-0' : 'opacity-100'}>YA, SAYA SAHKAN</span>
-                  {isProcessing && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        {gifts.length > 0 && (
+          // On a phone a long list scrolls inside its own frame so the section still fits one screen
+          <div
+            ref={listRef}
+            className={narrow ? 'wl-scroll' : undefined}
+            {...(listOverflows ? { 'data-lenis-prevent': '' } : {})}
+            style={{ width: '100%', textAlign: 'left', ...(narrow ? { maxHeight: 'max(150px, calc(100svh - 420px))', overflowY: 'auto' } : null) }}
+          >
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {gifts.map((gift, i) => (
+              <Reveal key={gift.id} index={i}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: narrow ? 12 : 24, padding: narrow ? '9px 0' : '20px 0', borderTop: 'var(--border-hairline)', opacity: gift.reserved ? 0.6 : 1, transition: 'opacity var(--dur-base) var(--ease-editorial)' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 'clamp(16px,3vw,28px)', minWidth: 0 }}>
+                    <span style={{ ...LABEL, flex: 'none', textTransform: 'none', fontSize: 'var(--label-sm)', color: 'var(--text-accent)' }}>{String(i + 1).padStart(2, '0')}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: narrow ? 0 : 4, minWidth: 0 }}>
+                      <span style={{ fontFamily: 'var(--font-serif)', fontSize: narrow ? 17 : 'var(--serif-lead)', lineHeight: narrow ? 1.3 : undefined, color: 'var(--text-primary)' }}>{gift.name}</span>
+                      {!gift.reserved && gift.buyLink && (
+                        <a href={gift.buyLink} target="_blank" rel="noopener noreferrer" style={{ ...LABEL, fontSize: 'var(--label-xs)', color: 'var(--text-muted)' }}>
+                          {t.registry.viewInShop}
+                        </a>
+                      )}
                     </div>
+                  </div>
+                  {gift.reserved ? (
+                    <span style={{ ...LABEL, flex: 'none', letterSpacing: '.24em', fontSize: 'var(--label-xs)', color: 'var(--text-success)' }}>{t.registry.reserved}</span>
+                  ) : (
+                    <Button variant="ghost" size="sm" onClick={() => handleOpenConfirm(gift)} style={{ flex: 'none' }}>{t.registry.reserve}</Button>
                   )}
-                </button>
-                <button 
-                  onClick={() => setSelectedGift(null)}
-                  disabled={isProcessing}
-                  className="w-full py-3.5 border border-stone-200 text-[#AAA] rounded-xl font-bold tracking-[0.15em] text-[10px] hover:bg-stone-50 transition-all uppercase active:scale-95"
-                >
-                  BATALKAN
-                </button>
-              </div>
-            </div>
+                </div>
+              </Reveal>
+            ))}
+            <div style={{ borderTop: 'var(--border-hairline)' }}></div>
+          </div>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: narrow ? 4 : 12 }}>
+          <Eyebrow tone="accent" size="xs">{t.registry.digital(bankName)}</Eyebrow>
+          <button className="wl-account" style={narrow ? { fontSize: 24 } : undefined} onClick={handleCopyAccount} aria-label={t.registry.copyAria(accountNumber)}>{accountNumber}</button>
+          <span aria-live="polite" style={{ ...LABEL, fontSize: 'var(--label-xs)', color: 'var(--text-muted)' }}>
+            {copied ? t.registry.copied : t.registry.copyHint(accountHolder)}
+          </span>
+        </div>
+        {!narrow && <OrnamentDivider width={200} />}
+      </div>
+
+      {/* Confirmation dialog */}
+      <Dialog open={!!selectedGift} onClose={handleCancel} eyebrow={t.registry.confirmEyebrow} title={t.registry.title}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, textAlign: 'center' }}>
+          <p style={{ margin: 0, fontFamily: 'var(--font-serif)', fontSize: 'var(--serif-body)', lineHeight: 'var(--leading-body)', color: 'var(--text-primary)' }}>
+            {t.registry.confirmBefore}<em style={{ color: 'var(--text-accent)' }}>{dialogName}</em>{t.registry.confirmAfter}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+            <Button fullWidth disabled={isProcessing} onClick={handleConfirmReservation}>
+              {isProcessing ? t.registry.saving : t.registry.confirm}
+            </Button>
+            <Button variant="ghost" size="sm" disabled={isProcessing} onClick={handleCancel}>{t.registry.cancel}</Button>
           </div>
         </div>
-      )}
+      </Dialog>
     </section>
   );
 };

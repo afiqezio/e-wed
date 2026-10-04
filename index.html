@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#241e15" />
     <title>Wedding Invitation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -29,8 +30,10 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Invitation (Walimah design system): Cormorant Garamond, Pinyon Script, Aref Ruqaa. Admin panel: Playfair Display, Montserrat. -->
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+      /* Admin panel theme variables. The invitation itself is styled by styles/walimah.css. */
       :root {
         --color-primary: #A64B6D;
         --color-secondary: #A1B39D;
@@ -38,44 +41,26 @@
         --color-text: #2D2D2D;
         --font-display: 'Playfair Display', serif;
         --font-body: 'Montserrat', sans-serif;
-        --font-serif: 'Cormorant Garamond', serif;
       }
 
-      html {
-        scroll-padding-top: 100px;
-        scroll-behavior: smooth;
-      }
-      
+      html { background: #241e15; }
+
       body {
-        font-family: var(--font-body);
-        background-color: var(--color-bg);
-        color: var(--color-text);
         margin: 0;
         overflow-x: hidden;
       }
 
-      .bg-islamic-pattern {
-        background-color: transparent;
-        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5.878 18.09h19.021l-15.388 11.18 5.878 18.09-15.389-11.18-15.388 11.18 5.878-18.09L.101 18.09h19.021L30 0z' fill='currentColor' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
-        color: var(--color-primary);
-      }
-
-      @keyframes floatBg {
-        from { background-position: 0 0; }
-        to { background-position: 600px 600px; }
-      }
-
-      .animate-float-slow {
-        animation: floatBg 80s linear infinite;
-      }
-
-      ::-webkit-scrollbar { width: 6px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 10px; }
-
-      .reveal-on-scroll { opacity: 0; transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
-      .reveal-on-scroll.active { opacity: 1; transform: translateY(0); }
-      .reveal-on-scroll.slide-up { transform: translateY(40px); }
+      /* Loading splash: lives here so it paints before any script runs */
+      .wl-splash { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; text-align: center; background: #1c170f; color: #d8c49c; font-family: 'Cormorant Garamond', Garamond, serif; transition: opacity .6s cubic-bezier(.22,.61,.36,1); }
+      .wl-splash[data-leaving="true"] { opacity: 0; pointer-events: none; }
+      .wl-splash-glyph { font-size: 22px; line-height: 1; }
+      .wl-splash-line { position: relative; width: 96px; height: 1px; overflow: hidden; background: rgba(216,196,156,.2); }
+      .wl-splash-line::after { content: ''; position: absolute; inset: 0; background: #d8c49c; transform: translateX(-100%); animation: wl-splash 1.6s cubic-bezier(.22,.61,.36,1) infinite; }
+      .wl-splash-text { font-size: 11px; font-weight: 500; letter-spacing: .26em; text-transform: uppercase; color: #a29478; }
+      .wl-splash-message { max-width: 34ch; font-size: 18px; line-height: 1.6; color: #e9dfc8; }
+      .wl-splash-button { padding: 12px 30px; background: transparent; border: 1px solid rgba(233,223,200,.62); color: #e9dfc8; font: 500 12px 'Cormorant Garamond', Garamond, serif; letter-spacing: .2em; text-transform: uppercase; cursor: pointer; }
+      @keyframes wl-splash { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
+      @media (prefers-reduced-motion: reduce) { .wl-splash-line::after { animation: none; transform: none; opacity: .5; } }
     </style>
     <script type="importmap">
     {
@@ -83,13 +68,18 @@
         "react/": "https://esm.sh/react@^19.2.3/",
         "react": "https://esm.sh/react@^19.2.3",
         "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-        "framer-motion": "https://esm.sh/framer-motion@^11.11.11"
+        "lenis": "https://esm.sh/lenis@^1.3.11"
       }
     }
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="wl-splash" role="status" aria-label="Loading">
+        <span class="wl-splash-glyph" aria-hidden="true">&#9880;&#65038;</span>
+        <span class="wl-splash-line" aria-hidden="true"></span>
+      </div>
+    </div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
